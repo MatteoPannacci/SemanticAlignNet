@@ -8,17 +8,22 @@ import tensorflow as tf
 from tensorflow.keras.layers import Dropout
 from PIL import Image
 
-#Network for Satellite images
+
+# Network for Satellite images
 class VGGModelCir:
-    def __init__(self,input_shape,name):
+
+    def __init__(self, input_shape, name, out_channels = 8):
         self.input_shape = input_shape
         self.model = None
         self.name = name
+        self.out_channels = out_channels
         self.build_model(input_shape)
+
 
     def warp_pad_columns(self, x, n=1):
         out = tf.concat([x[:, :, -n:, :], x, x[:, :, :n, :]], axis=2)
         return tf.pad(tensor=out, paddings=[[0, 0], [n, n], [0, 0], [0, 0]])
+
 
     def build_model(self, input_shape):
         # Load the VGG16 model without the top (dense) layers
@@ -49,35 +54,41 @@ class VGGModelCir:
             if i >= len(base_model.layers) - 6:  # Skip the last three convolutional layers
                 break      
         
-        # Add three additional convolutional layersù
-        #Circular convolution only on last three layers
+        # Add three additional convolutional layers
+        # Circular convolution only on last three layers
         x = self.warp_pad_columns(x,1)
         x = Conv2D(256, (3, 3), activation='relu', padding='valid',strides=(2,1))(x)
         x = self.warp_pad_columns(x,1)
         x = Conv2D(64, (3, 3), activation='relu', padding='valid',strides=(2,1))(x)
         x = self.warp_pad_columns(x,1)
-        x = Conv2D(8, (3, 3), activation='relu', padding='valid',strides=(1,1))(x)
+        x = Conv2D(self.out_channels, (3, 3), activation='relu', padding='valid',strides=(1,1))(x)
 
         self.model = Model(inputs=input_shape, outputs=x)
+
 
     def call(self, input):
         return self.model(input)
     
+
     def summary(self):
         # Print the summary of the model
         self.model.summary()
         
 
-#Network for the Ground images
+# Network for the Ground images
 class VGGModel:
-    def __init__(self, input_shape):
+
+    def __init__(self, input_shape, out_channels = 16):
         self.input_shape = input_shape
         self.model = None
+        self.out_channels = out_channels
         self.build_model(input_shape)
+
 
     def warp_pad_columns(self, x, n=1):
         out = tf.concat([x[:, :, -n:, :], x, x[:, :, :n, :]], axis=2)
         return tf.pad(tensor=out, paddings=[[0, 0], [n, n], [0, 0], [0, 0]])
+
 
     def build_model(self, input_shape):
         # Load the VGG16 model without the top (dense) layers
@@ -111,26 +122,17 @@ class VGGModel:
                 break    
         
         # Add three additional convolutional layers
-        
         x = Conv2D(256, (3, 3), activation='relu', padding='same',strides=(2,1))(x)
-        
         x = Conv2D(64, (3, 3), activation='relu', padding='same',strides=(2,1))(x)
-        
-        x = Conv2D(16, (3, 3), activation='relu', padding='same',strides=(1,1))(x)
+        x = Conv2D(self.out_channels, (3, 3), activation='relu', padding='same',strides=(1,1))(x)
+
         # Create the modified VGG16 model
         self.model = Model(inputs=input_shape, outputs=x)
+
 
     def call(self, input):
         return self.model(input)
 
+
     def summary(self):
         self.model.summary()
-
-
-
-
-#inputs = Input(shape=(128, 512, 3))
-#custom_vgg_model = VGGModelCir(inputs)
-
-# Print the model summary
-#custom_vgg_model.summary()
