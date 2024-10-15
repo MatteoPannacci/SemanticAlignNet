@@ -39,11 +39,6 @@ class VGGModelCir:
             if i == 0:
                 continue
 
-            #if "pool" in layer.name:
-            #    print(f"Layer {i}: {layer.name} - Padding: {layer.padding}, Strides: {layer.strides}, Ksize: {layer.pool_size}")
-            #else:
-            #    print(f"Layer {i}: {layer.name} - Padding: {layer.padding}, Strides: {layer.strides}, trainable: {layer.trainable}")
-
             x = layer(x)
             if x.name == "block4_conv1_sat/Relu:0":
                 x = Dropout(0.2)(x)
@@ -63,6 +58,7 @@ class VGGModelCir:
         x = self.warp_pad_columns(x,1)
         x = Conv2D(self.out_channels, (3, 3), activation='relu', padding='valid',strides=(1,1))(x)
 
+        # Create the modified VGG16 model
         self.model = Model(inputs=input_shape, outputs=x)
 
 
@@ -71,7 +67,6 @@ class VGGModelCir:
     
 
     def summary(self):
-        # Print the summary of the model
         self.model.summary()
         
 
@@ -94,9 +89,6 @@ class VGGModel:
         # Load the VGG16 model without the top (dense) layers
         base_model = VGG16(weights='imagenet', include_top=False)
 
-        # Define the input layer
-          # Input shape for the VGG16 model
-
         # Get the output of each layer and process it before passing it to the next layer
         x = input_shape
         for i,layer in enumerate(base_model.layers):
@@ -104,11 +96,6 @@ class VGGModel:
                 layer.trainable = False
             if i == 0:
                 continue
-
-            #if "pool" in layer.name:
-            #    print(f"Layer {i}: {layer.name} - Padding: {layer.padding}, Strides: {layer.strides}, Ksize: {layer.pool_size}")
-            #else:
-            #    print(f"Layer {i}: {layer.name} - Padding: {layer.padding}, Strides: {layer.strides}, trainable: {layer.trainable}")
             
             x = layer(x)
             if x.name == "block4_conv1/Relu:0":
@@ -118,7 +105,6 @@ class VGGModel:
             elif x.name == "block4_conv3/Relu:0":
                 x = Dropout(0.2)(x)
             if i >= len(base_model.layers) - 6:  # Skip the last three convolutional layers
-                #x = Dropout(0.5)(x)
                 break    
         
         # Add three additional convolutional layers
