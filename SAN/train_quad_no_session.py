@@ -72,7 +72,6 @@ def validate(dist_array, topK):
 def compute_loss(dist_array):
 
     pos_dist = tf.linalg.tensor_diag_part(dist_array)
-
     pair_n = batch_size * (batch_size - 1.0)
 
     # satellite to ground
@@ -120,9 +119,9 @@ def train(start_epoch=0):
     ###  
     print("Model created")
 
+    ### The two halves should have the same number of channels in total
+    assert grdNet.out_channels + grdSegNet.out_channels == satNet.out_channels + satSegNet.out_channels
     ###
-    # what about dimensions? the networks are built in order to return the same dimensions as output
-    # so if we add ground segmentation we have to change the channel dimension!
 
     grd_x = np.float32(np.zeros([2, 128, width, 3]))
     sat_x = np.float32(np.zeros([2, 256, 512, 3])) # (not used)
@@ -154,7 +153,7 @@ def train(start_epoch=0):
         print("Model checkpoint uploaded")
 
 
-    # Iterate over the desired number of epochs
+    ### TRAINING - Iterate over the desired number of epochs ###
     for epoch in range(start_epoch, start_epoch + number_of_epoch):
         print(f"Epoch {epoch+1}/{start_epoch + number_of_epoch}")
         
@@ -184,6 +183,7 @@ def train(start_epoch=0):
                     ### Added grdseg input and output
                     # Forward pass through the model
                     grd_features, grdseg_features, sat_features, satseg_features = model([batch_grd, batch_grdseg, batch_sat_polar, batch_satseg])
+                    ### SMART COMBINATION THROUGH FULLY CONNECTED LAYER?
                     grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
                     grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
                     sat_features = tf.concat([sat_features, satseg_features], axis=-1)
@@ -235,6 +235,7 @@ def train(start_epoch=0):
                 break
             ### added grdseg input and output
             grd_features, grdseg_features, sat_features, satseg_features = model([batch_grd, batch_grdseg, batch_sat_polar, batch_satseg])
+            ### SMART COMBINATION THROUGH FULLY CONNECTED LAYER
             sat_features = tf.concat([sat_features, satseg_features], axis=-1)
             grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
             grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
@@ -256,7 +257,6 @@ def train(start_epoch=0):
         print('      data_amount %d' % data_amount)
         top1_percent = int(data_amount * 0.01) + 1
         print('      top1_percent %d' % top1_percent)
-
 
         dist_array = 2 - 2 * np.matmul(grd_descriptor, np.transpose(sat_descriptor))
 
