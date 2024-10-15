@@ -31,8 +31,8 @@ class InputDataQuad:
         self.img_root = '../Data/' + self.data_type + '/'
 
         ### substituted with augmented list
-        self.train_list = self.img_root + 'train-19zl.csv' # TO CHANGE?
-        self.test_list = self.img_root + 'val-19zl.csv' # TO CHANGE?
+        self.train_list = self.img_root + 'train_updated.csv'
+        self.test_list = self.img_root + 'val_updated.csv'
         ###
 
         print('InputData::__init__: load %s' % self.train_list)
@@ -42,15 +42,14 @@ class InputDataQuad:
         with open(self.train_list, 'r') as file:
             idx = 0
             for line in file:
-                data = line.split(',') # WHAT ORDER?
+                data = line.split(',')
                 pano_id = (data[0].split('/')[-1]).split('.')[0]
                 ### added grdseg
                 # satellite filename, streetview filename, pano_id
                 self.id_list.append([
-                    data[0].replace('bing', 'polar').replace('jpg', 'png'), 
-                    data[0], 
-                    data[1],
-                    ### TO BE COMPLETED OR CHANGED
+                    data[3], # satellite polar
+                    data[0], # satellite
+                    data[1], # ground
                     pano_id
                 ])
                 ###
@@ -71,10 +70,9 @@ class InputDataQuad:
                 pano_id = (data[0].split('/')[-1]).split('.')[0]
                 # satellite filename, streetview filename, pano_id
                 self.id_test_list.append([
-                    data[0].replace('bing', 'polar').replace('jpg', 'png'), 
-                    data[0], 
-                    data[1],
-                    # TO BE COMPLETED OR CHANGED
+                    data[3], # satellite polar
+                    data[0], # satellite
+                    data[1], # ground
                     pano_id
                 ])
                 self.id_test_idx_list.append(idx)
@@ -132,7 +130,7 @@ class InputDataQuad:
             ###
 
             # ground
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2].replace("input","").replace("png","jpg"))
+            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2]) # .replace("input","").replace("png","jpg")
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
@@ -144,7 +142,7 @@ class InputDataQuad:
             ###
 
             # ground segmentation
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2].replace("input","").replace("png","jpg")) # TO CHANGE
+            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2].replace("streetview","streetview_segmentation"))
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
@@ -228,7 +226,7 @@ class InputDataQuad:
             #######################################
 
             # GROUND IMAGE
-            img = cv2.imread(self.img_root + self.id_list[img_idx][2].replace("input","").replace("png","jpg"))
+            img = cv2.imread(self.img_root + self.id_list[img_idx][2]) # .replace("input","").replace("png","jpg")
 
             if img is None or img.shape[0] != 224 or img.shape[1] != 1232:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][1], i), img.shape)
@@ -246,7 +244,7 @@ class InputDataQuad:
             #######################################
 
             ### GROUND SEGMENTATION
-            img = cv2.imread(self.img_root + self.id_list[img_idx][2].replace("input","").replace("png","jpg")) # CHANGE
+            img = cv2.imread(self.img_root + self.id_list[img_idx][2].replace("streetview","streetview_segmentation"))
 
             if img is None or img.shape[0] != 224 or img.shape[1] != 1232:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][1], i), img.shape)
