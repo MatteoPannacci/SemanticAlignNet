@@ -102,10 +102,10 @@ def train(start_epoch=14):
 
     grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)))
     satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat')
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_seg')
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_satseg')
     
     ### created ground segmentation branch
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_???') ### CHECK NAME ###
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg')
     ###
 
     processor = ProcessFeatures()
@@ -168,6 +168,7 @@ def train(start_epoch=14):
             break
         ### added grdseg input and output
         grd_features, grdseg_features, sat_features, satseg_features = model([batch_grd, batch_grdseg, batch_sat_polar, batch_satseg])
+        ### SMART COMBINATION THROUGH FULLY CONNECTED LAYER
         sat_features = tf.concat([sat_features, satseg_features], axis=-1)
         grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
         grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
