@@ -4,9 +4,8 @@ os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from cir_net_FOV_mb import *
 
-### Import its own InputData
+# Import its own InputData
 from polar_input_data_quad import InputDataQuad
-###
 
 from VGG_no_session import *
 import tensorflow as tf
@@ -102,44 +101,39 @@ def train(start_epoch=0):
 
     # Siamese-like network branches
     grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd')
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg')
     satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat')
     satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg')
     
-    ### created ground segmentation branch
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg')
-    ###
-
     processor = ProcessFeatures()
  
-    ### added groundSegNet to the model
+    # Full Model
     model = Model(
          inputs=[grdNet.model.input, grdSegNet.model.input, satNet.model.input, satSegNet.model.input], 
-         outputs=[grdNet.model.output, grdSegNet.model.output,satNet.model.output, satSegNet.model.output]
+         outputs=[grdNet.model.output, grdSegNet.model.output, satNet.model.output, satSegNet.model.output]
     )
-    ###  
     print("Model created")
 
-    ### The two halves should have the same number of channels in total
+    # The two halves of the model should have the same number of channels in total
     assert grdNet.out_channels + grdSegNet.out_channels == satNet.out_channels + satSegNet.out_channels
-    ###
+    # otherwise the output feature maps will be of different sizes
 
+    # (empty) input tensors
     grd_x = np.float32(np.zeros([2, 128, width, 3]))
-    sat_x = np.float32(np.zeros([2, 256, 512, 3])) # (not used)
+    grdseg_x = np.float32(np.zeros([2, 128, width, 3]))
+    sat_x = np.float32(np.zeros([2, 256, 512, 3])) # not used
     polar_sat_x = np.float32(np.zeros([2, 128, 512, 3]))
     satseg_x = np.float32(np.zeros([2, 128, 512, 3])) # (it's polar)
 
-    ### created ground segmentation input tensor
-    grdseg_x = np.float32(np.zeros([2, 128, width, 3]))
-    ###
-
-    ### added grdseg input and output, built grd_features as concatenation
+    # feature extraction and concatenation
     grd_features, grdseg_features, sat_features, satseg_features = model([grd_x, grdseg_x, polar_sat_x, satseg_x])
     sat_features = tf.concat([sat_features, satseg_features], axis=-1)
     grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
-    ###
 
+    # computing the distance and the matching
     sat_matrix, grd_matrix, distance, pred_orien = processor.VGG_13_conv_v2_cir(sat_features,grd_features)
 
+    # computing shapes
     s_height, s_width, s_channel = sat_matrix.get_shape().as_list()[1:]
     g_height, g_width, g_channel = grd_matrix.get_shape().as_list()[1:]
     sat_global_matrix = np.zeros([input_data.get_test_dataset_size(), s_height, s_width, s_channel])
@@ -163,16 +157,15 @@ def train(start_epoch=0):
         while True:
             total_loss = 0
             
-            #Gradient accumulation (batch=8, 4 iterations => total batch=32)
+            # gradient accumulation (batch=8, 4 iterations => total batch=32)
             for i in range(4):
 
-                ### added batch_grdseg
+                # take next batch
                 batch_sat_polar, batch_sat, batch_grd, batch_satseg, batch_grdseg, batch_orien = input_data.next_pair_batch(
                     8, 
                     grd_noise=train_grd_noise, 
                     FOV=train_grd_FOV
                 )
-                ###
 
                 if batch_sat is None:
                     end = True
@@ -180,13 +173,15 @@ def train(start_epoch=0):
 
                 with tf.GradientTape() as tape:
 
-                    ### Added grdseg input and output
                     # Forward pass through the model
                     grd_features, grdseg_features, sat_features, satseg_features = model([batch_grd, batch_grdseg, batch_sat_polar, batch_satseg])
-                    ### SMART COMBINATION THROUGH FULLY CONNECTED LAYER?
+                
+                    # feature extraction and concatenation
+                    ### ADD SMART COMBINATION THROUGH FULLY CONNECTED LAYER?
                     grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
                     grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
                     sat_features = tf.concat([sat_features, satseg_features], axis=-1)
+                    # sat_features is normalized after cropping
 
                     # Compute correlation and distance matrix
                     sat_matrix, grd_matrix, distance, orien = processor.VGG_13_conv_v2_cir(sat_features,grd_features)
@@ -202,9 +197,8 @@ def train(start_epoch=0):
                 else:
                         accumulated_gradients = [(acum_grad + grad) for acum_grad, grad in zip(accumulated_gradients, gradients)]
 
+            # at the end of the accumulation normalize the gradient and update the model's weights
             gradients = [acum_grad / tf.cast(4, tf.float32) for acum_grad in accumulated_gradients]
-            
-            # Update the model's weights
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
             
             if iter % 100 == 0:
@@ -224,22 +218,28 @@ def train(start_epoch=0):
         count = 0
         while True:
             # print('      progress %d' % val_i)
-            ### added batch_grdseg
+            
+            # take next batch
             batch_sat_polar, batch_sat, batch_grd, batch_satseg, batch_grdseg, batch_orien  = input_data.next_batch_scan(
                 8, 
                 grd_noise=test_grd_noise,
                 FOV=test_grd_FOV
             )
-            ###
+            
             if batch_sat is None:
                 break
-            ### added grdseg input and output
+            
+            # Forward pass
             grd_features, grdseg_features, sat_features, satseg_features = model([batch_grd, batch_grdseg, batch_sat_polar, batch_satseg])
-            ### SMART COMBINATION THROUGH FULLY CONNECTED LAYER
-            sat_features = tf.concat([sat_features, satseg_features], axis=-1)
-            grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
+            
+            # feature extraction and concatenation
+            ### ADD SMART COMBINATION THROUGH FULLY CONNECTED LAYER?        
             grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
-            ###
+            grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
+            sat_features = tf.concat([sat_features, satseg_features], axis=-1)
+            # sat_features is normalized after cropping
+            
+            # Compute correlation and distance matrix
             sat_matrix, grd_matrix, distance, orien = processor.VGG_13_conv_v2_cir(sat_features,grd_features)
 
             sat_global_matrix[val_i: val_i + sat_matrix.shape[0], :] = sat_matrix
@@ -251,7 +251,8 @@ def train(start_epoch=0):
 
         sat_descriptor = np.reshape(sat_global_matrix[:, :, :g_width, :], [-1, g_height * g_width * g_channel])
         sat_descriptor = sat_descriptor / np.linalg.norm(sat_descriptor, axis=-1, keepdims=True)
-        grd_descriptor = np.reshape(grd_global_matrix, [-1, g_height * g_width * g_channel])
+        grd_descriptor = np.reshape(grd_global_matrix, [-1, g_height * g_width * g_channel]) 
+        # the grd_descriptor is already normalized
 
         data_amount = grd_descriptor.shape[0]
         print('      data_amount %d' % data_amount)
