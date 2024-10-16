@@ -101,7 +101,7 @@ class InputDataQuad:
             img_idx = self.__cur_test_id + i
 
             # satellite polar
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][0].replace("/","/normal/"))
+            img = cv2.imread(self.img_root + self.id_test_list[img_idx][0] # .replace("/","/normal/"))
 
             img = img.astype(np.float32)
             img = img/255
@@ -190,7 +190,7 @@ class InputDataQuad:
             i += 1
 
             # SATELLITE POLAR TRANSFORMED
-            img = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/","/normal/"))
+            img = cv2.imread(self.img_root + self.id_list[img_idx][0] # .replace("/","/normal/"))
             if img is None or img.shape[0] != 128 or img.shape[1] != 512:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img.shape)
                 continue
