@@ -40,13 +40,11 @@ class InputDataQuad:
         self.id_list = []
         self.id_idx_list = []
         with open(self.train_list, 'r') as file:
-            idx = 0
+            next(file) # remove header
+            idx = 0            
             for line in file:
-                print("First Line:", line)
-                break
                 data = line.split(',')
                 pano_id = (data[0].split('/')[-1]).split('.')[0]
-                ### added grdseg
                 # satellite filename, streetview filename, pano_id
                 self.id_list.append([
                     data[3], # satellite polar
@@ -54,7 +52,6 @@ class InputDataQuad:
                     data[1], # ground
                     pano_id
                 ])
-                ###
                 self.id_idx_list.append(idx)
                 idx += 1
         self.data_size = len(self.id_list)
@@ -66,6 +63,7 @@ class InputDataQuad:
         self.id_test_list = []
         self.id_test_idx_list = []
         with open(self.test_list, 'r') as file:
+            next(file) # remove header
             idx = 0
             for line in file:
                 data = line.split(',')
