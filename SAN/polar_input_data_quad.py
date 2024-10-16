@@ -110,7 +110,7 @@ class InputDataQuad:
             ###
 
             # SATELLITE POLAR TRANSFORMED SEGMENTED
-            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/input","/segmap/output"))
+            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
             
             if img_s is None or img.shape[0] != 128 or img_s.shape[1] != 512:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img_s.shape)
@@ -201,7 +201,7 @@ class InputDataQuad:
             #######################################
 
             # SATELLITE POLAR TRANSFORMED SEGMENTED
-            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/input","/segmap/output"))
+            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
             
             if img_s is None or img.shape[0] != 128 or img_s.shape[1] != 512:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img_s.shape)
