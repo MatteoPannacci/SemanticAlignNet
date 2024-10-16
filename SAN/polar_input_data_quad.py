@@ -42,6 +42,8 @@ class InputDataQuad:
         with open(self.train_list, 'r') as file:
             idx = 0
             for line in file:
+                print("First Line:", line)
+                break
                 data = line.split(',')
                 pano_id = (data[0].split('/')[-1]).split('.')[0]
                 ### added grdseg
