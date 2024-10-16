@@ -93,6 +93,8 @@ class VGGModel:
         # Get the output of each layer and process it before passing it to the next layer
         x = input_shape
         for i,layer in enumerate(base_model.layers):
+            layer._name = layer.name + self.name
+            
             if i <= 9:
                 layer.trainable = False
             if i == 0:
