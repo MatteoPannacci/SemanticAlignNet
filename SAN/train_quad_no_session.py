@@ -201,7 +201,7 @@ def train(start_epoch=0):
             gradients = [acum_grad / tf.cast(4, tf.float32) for acum_grad in accumulated_gradients]
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
             
-            if iter % 100 == 0:
+            if iter % 25 == 0:
                 print("ITERATION: {}, LOSS VALUE: {}, TOTAL LOSS: {}".format(iter, loss_value.numpy(), total_loss/4))
 
             iter+=1
