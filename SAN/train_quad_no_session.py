@@ -242,6 +242,7 @@ def train(start_epoch=0):
             # Compute correlation and distance matrix
             sat_matrix, grd_matrix, distance, orien = processor.VGG_13_conv_v2_cir(sat_features,grd_features)
 
+            # accumulate the feature maps
             sat_global_matrix[val_i: val_i + sat_matrix.shape[0], :] = sat_matrix
             grd_global_matrix[val_i: val_i + grd_matrix.shape[0], :] = grd_matrix
             orientation_gth[val_i: val_i + grd_matrix.shape[0]] = batch_orien
@@ -249,6 +250,7 @@ def train(start_epoch=0):
             val_i += sat_matrix.shape[0]
             count += 1
 
+        # at the end of accumulation reshape the feature maps into vectors (and normalize sat)
         sat_descriptor = np.reshape(sat_global_matrix[:, :, :g_width, :], [-1, g_height * g_width * g_channel])
         sat_descriptor = sat_descriptor / np.linalg.norm(sat_descriptor, axis=-1, keepdims=True)
         grd_descriptor = np.reshape(grd_global_matrix, [-1, g_height * g_width * g_channel]) 
@@ -259,10 +261,14 @@ def train(start_epoch=0):
         top1_percent = int(data_amount * 0.01) + 1
         print('      top1_percent %d' % top1_percent)
 
+        # compute distances
         dist_array = 2 - 2 * np.matmul(grd_descriptor, np.transpose(sat_descriptor))
 
+        # compute metrics (only top-1)
         val_accuracy = validate(dist_array, 1)
         print('accuracy = %.1f%%' % (val_accuracy * 100.0))
+
+        # save model
         with open('./saved_models/path/filename.txt', 'a') as file:
                 file.write(str(epoch) + ': ' + str(val_accuracy) + ', Loss: ' + str(loss_value.numpy()) + '\n')
 

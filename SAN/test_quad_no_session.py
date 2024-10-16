@@ -193,13 +193,18 @@ def train(start_epoch=14):
     top1_percent = int(data_amount * 0.01) + 1
     print('      top1_percent %d' % top1_percent)
 
-    if test_grd_noise == 0:  
+    if test_grd_noise == 0:
+
+        # at the end of accumulation reshape the feature maps into vectors (and normalize sat)
         sat_descriptor = np.reshape(sat_global_matrix[:, :, :g_width, :], [-1, g_height * g_width * g_channel])
         sat_descriptor = sat_descriptor / np.linalg.norm(sat_descriptor, axis=-1, keepdims=True)
         grd_descriptor = np.reshape(grd_global_matrix, [-1, g_height * g_width * g_channel])
+        # the grd_descriptor is already normalized
 
+        # compute distances
         dist_array = 2 - 2 * np.matmul(grd_descriptor, np.transpose(sat_descriptor))
  
+        # compute metrics
         val_accuracy = validate(dist_array, 1)
         print('accuracy = %.1f%%' % (val_accuracy * 100.0))
 
