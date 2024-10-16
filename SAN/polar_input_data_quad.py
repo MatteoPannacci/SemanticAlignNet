@@ -84,7 +84,7 @@ class InputDataQuad:
     def next_batch_scan(self, batch_size, grd_noise=360, FOV=360):
         if self.__cur_test_id >= self.test_data_size:
             self.__cur_test_id = 0
-            return None, None, None, None, None
+            return None, None, None, None, None, None
         elif self.__cur_test_id + batch_size >= self.test_data_size:
             batch_size = self.test_data_size - self.__cur_test_id
 
@@ -168,7 +168,7 @@ class InputDataQuad:
 
         if self.__cur_id + batch_size + 2 >= self.data_size:
             self.__cur_id = 0
-            return None, None, None, None, None
+            return None, None, None, None, None, None
 
         grd_width = int(FOV/360*512)
 
