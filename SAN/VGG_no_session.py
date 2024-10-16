@@ -73,9 +73,10 @@ class VGGModelCir:
 # Network for the Ground images
 class VGGModel:
 
-    def __init__(self, input_shape, out_channels = 16):
+    def __init__(self, input_shape, name = '', out_channels = 16):
         self.input_shape = input_shape
         self.model = None
+        self.name = name
         self.out_channels = out_channels
         self.build_model(input_shape)
 
