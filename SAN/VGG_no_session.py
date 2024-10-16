@@ -12,7 +12,7 @@ from PIL import Image
 # Network for Satellite images
 class VGGModelCir:
 
-    def __init__(self, input_shape, name, out_channels = 8):
+    def __init__(self, input_shape, name = '', out_channels = 8):
         self.input_shape = input_shape
         self.model = None
         self.name = name
