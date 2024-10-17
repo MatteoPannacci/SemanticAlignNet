@@ -278,7 +278,7 @@ def train(start_epoch=0):
 
         # save model
         with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
-                file.write(str(epoch) + ': top1' + str(val_top1) +
+                file.write(str(epoch) + ': top1 ' + str(val_top1) +
                            ', top5 ' + str(val_top5) +
                            ', top10 ' + str(val_top10) +
                            ', top1perc ' + str(val_top1perc) +
