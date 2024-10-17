@@ -212,7 +212,7 @@ def train(start_epoch=0):
                  break
     
         # Save the model
-        model_path = "./saved_models/path/"+str(epoch)+"/"
+        model_path = "./saved_models/" + model_save_name + "/"+str(epoch)+"/"
         model.save(model_path)
 
         print("Validation...")
@@ -274,15 +274,15 @@ def train(start_epoch=0):
         val_top10 = validate(dist_array, 10)
         print('top10 = %.2f%%' % (val_top10 * 100.0))
         val_top1perc = validate(dist_array, top1_percent)
-        print('top1% = %.2f%%' % (val_top1perc * 100.0))
+        print('top1perc = %.2f%%' % (val_top1perc * 100.0))
 
         # save model
         with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
                 file.write(str(epoch) + ': top1' + str(val_top1) +
-                           ', top5: ' + str(val_top5) +
-                           ', top10: ' + str(val_top10) +
-                           ', top1%: ' + str(val_top1perc) +
-                           ', Loss: ' + str(loss_value.numpy()) + '\n')
+                           ', top5 ' + str(val_top5) +
+                           ', top10 ' + str(val_top10) +
+                           ', top1perc ' + str(val_top1perc) +
+                           ', Loss ' + str(loss_value.numpy()) + '\n')
 
 
 if __name__ == '__main__':
