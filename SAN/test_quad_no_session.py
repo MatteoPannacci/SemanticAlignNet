@@ -205,8 +205,14 @@ def train(start_epoch=14):
         dist_array = 2 - 2 * np.matmul(grd_descriptor, np.transpose(sat_descriptor))
  
         # compute metrics
-        val_accuracy = validate(dist_array, 1)
-        print('accuracy = %.1f%%' % (val_accuracy * 100.0))
+        val_top1 = validate(dist_array, 1)
+        print('top1 = %.2f%%' % (val_top1 * 100.0))
+        val_top5 = validate(dist_array, 5)
+        print('top5 = %.2f%%' % (val_top5 * 100.0))
+        val_top10 = validate(dist_array, 10)
+        print('top10 = %.2f%%' % (val_top10 * 100.0))
+        val_top1perc = validate(dist_array, top1_percent)
+        print('top1% = %.2f%%' % (val_top1perc * 100.0))
 
         gt_dist = dist_array.diagonal()
         prediction = np.sum(dist_array < gt_dist.reshape(-1, 1), axis=-1)

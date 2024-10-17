@@ -26,6 +26,7 @@ parser.add_argument('--train_grd_noise', type=int, help='0~360', default=360)
 parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
 parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
 parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
+parser.add_argument('--name', type=str, default='unnamed')
 args = parser.parse_args()
 
 
@@ -36,12 +37,13 @@ test_grd_noise = args.test_grd_noise
 train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
 number_of_epoch = args.number_of_epoch
-loss_type = 'l1'
+model_save_name = args.name
+loss_type = 'l1' # (not used)
 batch_size = 8
 loss_weight = 10.0
 learning_rate_val = 1e-5
-keep_prob_val = 0.8
-keep_prob = 0.8
+keep_prob_val = 0.8 # (not used)
+keep_prob = 0.8 # (not used)
 
 print("SETTED PARAMETERS: ")
 print("Train ground FOV: {}".format(train_grd_FOV))
@@ -264,13 +266,23 @@ def train(start_epoch=0):
         # compute distances
         dist_array = 2 - 2 * np.matmul(grd_descriptor, np.transpose(sat_descriptor))
 
-        # compute metrics (only top-1)
-        val_accuracy = validate(dist_array, 1)
-        print('accuracy = %.1f%%' % (val_accuracy * 100.0))
+        # compute metrics
+        val_top1 = validate(dist_array, 1)
+        print('top1 = %.2f%%' % (val_top1 * 100.0))
+        val_top5 = validate(dist_array, 5)
+        print('top5 = %.2f%%' % (val_top5 * 100.0))
+        val_top10 = validate(dist_array, 10)
+        print('top10 = %.2f%%' % (val_top10 * 100.0))
+        val_top1perc = validate(dist_array, top1_percent)
+        print('top1% = %.2f%%' % (val_top1perc * 100.0))
 
         # save model
-        with open('./saved_models/path/filename.txt', 'a') as file:
-                file.write(str(epoch) + ': ' + str(val_accuracy) + ', Loss: ' + str(loss_value.numpy()) + '\n')
+        with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
+                file.write(str(epoch) + ': top1' + str(val_top1) +
+                           ', top5: ' + str(val_top5) +
+                           ', top10: ' + str(val_top10) +
+                           ', top1%: ' + str(val_top1perc) +
+                           ', Loss: ' + str(loss_value.numpy()) + '\n')
 
 
 if __name__ == '__main__':
