@@ -20,8 +20,8 @@ parser = argparse.ArgumentParser(description='TensorFlow implementation.')
 
 
 # Parser
-parser.add_argument('--start_epoch', type=int, help='from epoch', default=15)
-parser.add_argument('--number_of_epoch', type=int, help='number_of_epoch', default=20)
+parser.add_argument('--start_epoch', type=int, help='from epoch', default=0)
+parser.add_argument('--number_of_epoch', type=int, help='number_of_epoch', default=30)
 parser.add_argument('--train_grd_noise', type=int, help='0~360', default=360)
 parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
 parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
