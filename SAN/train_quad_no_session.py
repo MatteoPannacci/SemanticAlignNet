@@ -94,7 +94,7 @@ def train(start_epoch=0):
     '''
 
     # import data
-    input_data = InputDataQuad() ### NEED TO BE MODIFIED ###
+    input_data = InputDataQuad()
 
     width = int(train_grd_FOV / 360 * 512)
 
