@@ -1,7 +1,7 @@
 ### Imports
 import pytorch_lightning as pl
 import abc
-from .utils import top_k_rank_accuracy
+from utils import top_k_rank_accuracy
 import torch
 
 
