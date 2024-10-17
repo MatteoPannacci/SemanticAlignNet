@@ -1,7 +1,7 @@
 import os
 from pickletools import optimize
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 from cir_net_FOV_mb import *
 from polar_input_data_orien_FOV_3_Segmap_Concatenation import InputData
 from VGG_no_session import *
