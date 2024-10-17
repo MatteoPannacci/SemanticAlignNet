@@ -289,11 +289,11 @@ class CVUSADataModule(pl.LightningDataModule):
 
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=self.train_collate_fn, shuffle=True, num_workers=2, pin_memory = torch.cuda.is_available())
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=self.train_collate_fn, shuffle=True, num_workers=4, pin_memory = torch.cuda.is_available())
 
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, collate_fn=self.val_collate_fn, shuffle=False, num_workers=2, pin_memory = torch.cuda.is_available())
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, collate_fn=self.val_collate_fn, shuffle=False, num_workers=4, pin_memory = torch.cuda.is_available())
 
 
     def compute_mean_std(self):
