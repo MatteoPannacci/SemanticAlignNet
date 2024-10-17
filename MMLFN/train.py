@@ -161,7 +161,7 @@ def train():
     trainer = pl.Trainer(
         logger=logger,
         max_epochs=number_of_epoch,
-        devices=1, # CHECK
+        devices=2,
         callbacks=[progress_bar, checkpoint_callback],
         accumulate_grad_batches=4,
         gradient_clip_val=100,
