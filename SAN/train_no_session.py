@@ -176,7 +176,7 @@ def train(start_epoch=0):
             # Update the model's weights
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
             
-            if iter % 100 == 0:
+            if iter % 25 == 0:
                 print("ITERATION: {}, LOSS VALUE: {}, TOTAL LOSS: {}".format(iter, loss_value.numpy(), total_loss/4))
 
             iter+=1
@@ -185,7 +185,7 @@ def train(start_epoch=0):
                  break
     
         # Save the model
-        model_path = "./saved_models/path/"+str(epoch)+"/"
+        model_path = "./saved_models/"  + model_save_name + "/"+str(epoch)+"/"
         model.save(model_path)
 
         print("Validation...")
