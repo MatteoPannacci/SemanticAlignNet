@@ -1,5 +1,6 @@
 ### Import
 import argparse
+import numpy as np
 from torch import nn
 from losses import CombinedLoss, InfoNCE, TripletLoss
 from data_module import CVUSADataModule
