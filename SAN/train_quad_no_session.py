@@ -102,9 +102,9 @@ def train(start_epoch=0):
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_val)
 
     # Siamese-like network branches
-    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=8)
+    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16)
     grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8)
-    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=8)
+    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16)
     satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8)
     
     processor = ProcessFeatures()
