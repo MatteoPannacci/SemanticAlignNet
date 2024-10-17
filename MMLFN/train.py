@@ -45,7 +45,7 @@ def train():
 
     # @title Creating dataloaders
 
-    input_dir = '/content/input/data/CVUSA'
+    input_dir = '../Data/CVUSA_subset'
 
     data_module = CVUSADataModule(
         input_dir = input_dir,
