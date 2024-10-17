@@ -102,10 +102,10 @@ def train(start_epoch=0):
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_val)
 
     # Siamese-like network branches
-    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd')
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg')
-    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat')
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg')
+    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=8)
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8)
+    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=8)
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8)
     
     processor = ProcessFeatures()
  
@@ -203,7 +203,7 @@ def train(start_epoch=0):
             gradients = [acum_grad / tf.cast(4, tf.float32) for acum_grad in accumulated_gradients]
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
             
-            if iter % 100 == 0:
+            if iter % 25 == 0:
                 print("ITERATION: {}, LOSS VALUE: {}, TOTAL LOSS: {}".format(iter, loss_value.numpy(), total_loss/4))
 
             iter+=1

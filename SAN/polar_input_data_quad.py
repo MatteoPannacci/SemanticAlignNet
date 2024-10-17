@@ -40,11 +40,11 @@ class InputDataQuad:
         self.id_list = []
         self.id_idx_list = []
         with open(self.train_list, 'r') as file:
-            idx = 0
+            next(file) # remove header
+            idx = 0            
             for line in file:
                 data = line.split(',')
                 pano_id = (data[0].split('/')[-1]).split('.')[0]
-                ### added grdseg
                 # satellite filename, streetview filename, pano_id
                 self.id_list.append([
                     data[3], # satellite polar
@@ -52,7 +52,6 @@ class InputDataQuad:
                     data[1], # ground
                     pano_id
                 ])
-                ###
                 self.id_idx_list.append(idx)
                 idx += 1
         self.data_size = len(self.id_list)
@@ -64,6 +63,7 @@ class InputDataQuad:
         self.id_test_list = []
         self.id_test_idx_list = []
         with open(self.test_list, 'r') as file:
+            next(file) # remove header
             idx = 0
             for line in file:
                 data = line.split(',')
@@ -84,7 +84,7 @@ class InputDataQuad:
     def next_batch_scan(self, batch_size, grd_noise=360, FOV=360):
         if self.__cur_test_id >= self.test_data_size:
             self.__cur_test_id = 0
-            return None, None, None, None, None
+            return None, None, None, None, None, None
         elif self.__cur_test_id + batch_size >= self.test_data_size:
             batch_size = self.test_data_size - self.__cur_test_id
 
@@ -101,7 +101,7 @@ class InputDataQuad:
             img_idx = self.__cur_test_id + i
 
             # satellite polar
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][0].replace("/","/normal/"))
+            img = cv2.imread(self.img_root + self.id_test_list[img_idx][0]) # .replace("/","/normal/")
 
             img = img.astype(np.float32)
             img = img/255
@@ -110,7 +110,7 @@ class InputDataQuad:
             ###
 
             # SATELLITE POLAR TRANSFORMED SEGMENTED
-            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/input","/segmap/output"))
+            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
             
             if img_s is None or img.shape[0] != 128 or img_s.shape[1] != 512:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img_s.shape)
@@ -168,7 +168,7 @@ class InputDataQuad:
 
         if self.__cur_id + batch_size + 2 >= self.data_size:
             self.__cur_id = 0
-            return None, None, None, None, None
+            return None, None, None, None, None, None
 
         grd_width = int(FOV/360*512)
 
@@ -190,7 +190,7 @@ class InputDataQuad:
             i += 1
 
             # SATELLITE POLAR TRANSFORMED
-            img = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/","/normal/"))
+            img = cv2.imread(self.img_root + self.id_list[img_idx][0]) # .replace("/","/normal/")
             if img is None or img.shape[0] != 128 or img.shape[1] != 512:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img.shape)
                 continue
@@ -201,7 +201,7 @@ class InputDataQuad:
             #######################################
 
             # SATELLITE POLAR TRANSFORMED SEGMENTED
-            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/input","/segmap/output"))
+            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
             
             if img_s is None or img.shape[0] != 128 or img_s.shape[1] != 512:
                 print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img_s.shape)
