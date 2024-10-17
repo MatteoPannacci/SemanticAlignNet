@@ -330,5 +330,3 @@ class CVUSADataModule(pl.LightningDataModule):
         for key in self.mean:
             self.mean[key] = mean_std[f'{key}_mean']
             self.std[key] = mean_std[f'{key}_std']
-
-        self.__compute_transforms()
