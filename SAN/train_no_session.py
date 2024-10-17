@@ -125,7 +125,7 @@ def train(start_epoch=0):
 
     # load a Model
     if start_epoch != 0:
-        model_path = "./saved_models/FOV70_segmap_concatenation/14/"
+        model_path = "./saved_models/SANv2/18/"
         model = keras.models.load_model(model_path)
         print("Model checkpoint uploaded")
 
