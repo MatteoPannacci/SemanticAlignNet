@@ -176,7 +176,7 @@ def train():
         model = model,
         train_dataloaders = train_loader,
         val_dataloaders = val_loader,
-        ckpt_path = './save_model/...'
+        # ckpt_path = './save_model/...'
     )
 
     ###
