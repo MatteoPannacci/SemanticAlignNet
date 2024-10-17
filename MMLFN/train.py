@@ -25,7 +25,7 @@ parser.add_argument('--augmentations', type=bool, default=False)
 parser.add_argument('--batch_size', type=int, default=8)
 parser.add_argument('--FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--model_type', type=str, help="dual, triple_sat, triple_grd, quadruple, quintuple", default="quadruple")
-parser.add_argument('--quantization', type=str, help="16-true, 16-mixed", default="16-true")
+parser.add_argument('--quantization', type=str, help="16-true, 16-mixed", default="16")
 
 args = parser.parse_args()
 

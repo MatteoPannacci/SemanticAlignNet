@@ -52,8 +52,8 @@ class MultiBranchModel(pl.LightningModule):
         loss = self.compute_loss(embeddings, grd_emb, sat_emb)
         top_1 = top_k_rank_accuracy(grd_emb, sat_emb, k=1)
 
-        self.log('train_top1', top_1, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
-        self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+        self.log('train_top1', top_1, on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
 
         return loss
 
