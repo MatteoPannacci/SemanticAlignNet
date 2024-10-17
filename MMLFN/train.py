@@ -25,7 +25,7 @@ parser.add_argument('--augmentations', type=bool, default=False)
 parser.add_argument('--batch_size', type=int, default=8)
 parser.add_argument('--FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--model_type', type=str, help="dual, triple_sat, triple_grd, quadruple, quintuple", default="quadruple")
-parser.add_argument('--quantization', type=str, help="16-true, 16-mixed", default="16")
+parser.add_argument('--quantization', type=str, help="16-true, 16-mixed", default="16-mixed")
 
 args = parser.parse_args()
 
@@ -151,7 +151,7 @@ def train():
     checkpoint_callback = MyModelCheckpoint(
         filename=model_type+'-{epoch}-{val_top1:.2f}',
         mode="max",
-        every_n_epochs=4,
+        every_n_epochs=1,
         save_top_k=1,
         config=repr(model)
     )
