@@ -42,6 +42,5 @@ class MyModelCheckpoint(ModelCheckpoint):
         
         # Update the dirpath to the new epoch-specific directory
         self.dirpath = epoch_dir
-        self.filename = f"{pl_module.__class__.__name__}_epoch={trainer.current_epoch}"
         
         return super().on_save_checkpoint(trainer, pl_module, checkpoint)

@@ -14,6 +14,7 @@ from pytorch_lightning.callbacks import RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from checkpoint import MyModelCheckpoint
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 ###
 
@@ -148,7 +149,8 @@ def train():
     # @title Create Trainer
 
     logger = TensorBoardLogger("./save_models/", name=model_type)
-    checkpoint_callback = MyModelCheckpoint(
+    checkpoint_callback = ModelCheckpoint(
+        dirpath = './save_models/' + model_type,
         filename=model_type+'-{epoch}-{val_top1:.2f}',
         mode="max",
         every_n_epochs=1,
