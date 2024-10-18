@@ -154,8 +154,7 @@ def train():
         filename=model_type+'-{epoch}-{val_top1:.2f}',
         mode="max",
         every_n_epochs=1,
-        save_top_k=1,
-        config=repr(model)
+        save_top_k=-1,
     )
 
     progress_bar = RichProgressBar()
