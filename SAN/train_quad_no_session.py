@@ -1,7 +1,7 @@
 import os
 from pickletools import optimize
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 from cir_net_FOV_mb import *
 
 # Import its own InputData
@@ -41,7 +41,7 @@ model_save_name = args.name
 loss_type = 'l1' # (not used)
 batch_size = 8
 loss_weight = 10.0
-learning_rate_val = 1e-5
+learning_rate_val = 1e-4
 keep_prob_val = 0.8 # (not used)
 keep_prob = 0.8 # (not used)
 
@@ -278,10 +278,10 @@ def train(start_epoch=0):
 
         # save model
         with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
-                file.write(str(epoch) + ': top1 ' + str(val_top1) +
-                           ', top5 ' + str(val_top5) +
-                           ', top10 ' + str(val_top10) +
-                           ', top1perc ' + str(val_top1perc) +
+                file.write(str(epoch) + ': top1 ' + format(val_top1, '.2f') +
+                           ', top5 ' + format(val_top5, '.2f') +
+                           ', top10 ' + format(val_top10, '.2f') +
+                           ', top1perc ' + format(val_top1perc, '.2f') +
                            ', Loss ' + str(loss_value.numpy()) + '\n')
 
 
