@@ -27,6 +27,8 @@ parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
 parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
 parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
 parser.add_argument('--name', type=str, default='unnamed')
+parser.add_argument('--batch_size', type=int, default=8)
+parser.add_argument('--acc_size', type=int, default=4)
 args = parser.parse_args()
 
 
@@ -38,8 +40,9 @@ train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
 number_of_epoch = args.number_of_epoch
 model_save_name = args.name
+batch_size = args.batch_size
+accumulation_size = args.acc_size
 loss_type = 'l1' # (not used)
-batch_size = 16
 loss_weight = 10.0
 learning_rate_val = 1e-4
 keep_prob_val = 0.8 # (not used)
@@ -160,11 +163,12 @@ def train(start_epoch=0):
             total_loss = 0
             
             # gradient accumulation (batch=8, 4 iterations => total batch=32)
-            for i in range(4):
+            
+            for i in range(accumulation_size):
 
                 # take next batch
                 batch_sat_polar, batch_sat, batch_grd, batch_satseg, batch_grdseg, batch_orien = input_data.next_pair_batch(
-                    8, 
+                    batch_size, 
                     grd_noise=train_grd_noise, 
                     FOV=train_grd_FOV
                 )
@@ -200,11 +204,11 @@ def train(start_epoch=0):
                         accumulated_gradients = [(acum_grad + grad) for acum_grad, grad in zip(accumulated_gradients, gradients)]
 
             # at the end of the accumulation normalize the gradient and update the model's weights
-            gradients = [acum_grad / tf.cast(4, tf.float32) for acum_grad in accumulated_gradients]
+            gradients = [acum_grad / tf.cast(accumulation_size, tf.float32) for acum_grad in accumulated_gradients]
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
             
             if iter % 25 == 0:
-                print("ITERATION: {}, LOSS VALUE: {}, TOTAL LOSS: {}".format(iter, loss_value.numpy(), total_loss/4))
+                print("ITERATION: {}, LOSS VALUE: {}, TOTAL LOSS: {}".format(iter, loss_value.numpy(), total_loss/accumulation_size))
 
             iter+=1
 
@@ -223,7 +227,7 @@ def train(start_epoch=0):
             
             # take next batch
             batch_sat_polar, batch_sat, batch_grd, batch_satseg, batch_grdseg, batch_orien  = input_data.next_batch_scan(
-                8, 
+                batch_size, 
                 grd_noise=test_grd_noise,
                 FOV=test_grd_FOV
             )
