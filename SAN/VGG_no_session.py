@@ -12,11 +12,12 @@ from PIL import Image
 # Network for Satellite images
 class VGGModelCir:
 
-    def __init__(self, input_shape, name = '', out_channels = 8):
+    def __init__(self, input_shape, name = '', out_channels = 8, freeze = True):
         self.input_shape = input_shape
         self.model = None
         self.name = name
         self.out_channels = out_channels
+        self.freeze = freeze
         self.build_model(input_shape)
 
 
@@ -34,7 +35,7 @@ class VGGModelCir:
         for i,layer in enumerate(base_model.layers):  
             layer._name = layer.name + self.name
             
-            if i <= 9:
+            if i <= 9 and self.freeze:
                 layer.trainable = False
             if i == 0:
                 continue
@@ -73,11 +74,12 @@ class VGGModelCir:
 # Network for the Ground images
 class VGGModel:
 
-    def __init__(self, input_shape, name = '', out_channels = 16):
+    def __init__(self, input_shape, name = '', out_channels = 16, freeze = True):
         self.input_shape = input_shape
         self.model = None
         self.name = name
         self.out_channels = out_channels
+        self.freeze = freeze
         self.build_model(input_shape)
 
 
@@ -95,7 +97,7 @@ class VGGModel:
         for i,layer in enumerate(base_model.layers):
             layer._name = layer.name + self.name
             
-            if i <= 9:
+            if i <= 9 and self.freeze:
                 layer.trainable = False
             if i == 0:
                 continue
