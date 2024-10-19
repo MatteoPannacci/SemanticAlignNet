@@ -3,10 +3,8 @@ from pickletools import optimize
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 from cir_net_FOV_mb import *
-
 # Import its own InputData
 from polar_input_data_quad import InputDataQuad
-
 from VGG_no_session import *
 import tensorflow as tf
 from tensorflow import keras
@@ -104,19 +102,26 @@ def train(start_epoch=0):
     # Define the optimizer   
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_val)
 
-    # Siamese-like network branches
-    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
-    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
-    
     processor = ProcessFeatures()
- 
-    # Full Model
-    model = Model(
-         inputs=[grdNet.model.input, grdSegNet.model.input, satNet.model.input, satSegNet.model.input], 
-         outputs=[grdNet.model.output, grdSegNet.model.output, satNet.model.output, satSegNet.model.output]
-    )
+
+    # Create a MirroredStrategy.
+    strategy = tf.distribute.MirroredStrategy()
+    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
+
+    with strategy.scope():
+    
+        # Siamese-like network branches
+        grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
+        grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
+        satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
+        satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
+     
+        # Full Model
+        model = Model(
+             inputs=[grdNet.model.input, grdSegNet.model.input, satNet.model.input, satSegNet.model.input], 
+             outputs=[grdNet.model.output, grdSegNet.model.output, satNet.model.output, satSegNet.model.output]
+        )
+        
     print("Model created")
 
     # The two halves of the model should have the same number of channels in total
