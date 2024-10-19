@@ -103,7 +103,7 @@ def train(start_epoch=0):
     # Define the optimizer   
     optimizer = tf.keras.optimizers.Adam(
         learning_rate=learning_rate_val,
-        weight_decay=None,
+        decay=None,
     )
     
     # Siamese-like network branches
