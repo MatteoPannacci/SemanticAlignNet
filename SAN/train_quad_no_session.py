@@ -94,22 +94,21 @@ def train(start_epoch=0):
     :param start_epoch: the epoch id start to train. The first epoch is 0.
     '''
 
+    width = int(train_grd_FOV / 360 * 512)
+    
     # import data
     input_data = InputDataQuad()
-
-    width = int(train_grd_FOV / 360 * 512)
-
-    # Define the optimizer   
-    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_val)
-
-    processor = ProcessFeatures()
+    processor = ProcessFeatures()    
 
     # Create a MirroredStrategy.
     strategy = tf.distribute.MirroredStrategy()
     print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
     with strategy.scope():
-    
+
+        # Define the optimizer   
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_val)
+        
         # Siamese-like network branches
         grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
         grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
