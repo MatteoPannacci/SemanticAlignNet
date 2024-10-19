@@ -22,8 +22,8 @@ parser.add_argument('--start_epoch', type=int, help='from epoch', default=0)
 parser.add_argument('--number_of_epoch', type=int, help='number_of_epoch', default=30)
 parser.add_argument('--train_grd_noise', type=int, help='0~360', default=360)
 parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
-parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
-parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=70)
+parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
+parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--name', type=str, default='unnamed')
 parser.add_argument('--batch_size', type=int, default=8)
 parser.add_argument('--acc_size', type=int, default=4)
@@ -100,27 +100,24 @@ def train(start_epoch=0):
     input_data = InputDataQuad()
     processor = ProcessFeatures()    
 
-    # Create a MirroredStrategy.
-    strategy = tf.distribute.MirroredStrategy()
-    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
-
-    with strategy.scope():
-
-        # Define the optimizer   
-        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_val)
-        
-        # Siamese-like network branches
-        grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
-        grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
-        satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
-        satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
-     
-        # Full Model
-        model = Model(
-             inputs=[grdNet.model.input, grdSegNet.model.input, satNet.model.input, satSegNet.model.input], 
-             outputs=[grdNet.model.output, grdSegNet.model.output, satNet.model.output, satSegNet.model.output]
-        )
-        
+    # Define the optimizer   
+    optimizer = tf.keras.optimizers.Adam(
+        learning_rate=learning_rate_val,
+        weight_decay=None,
+    )
+    
+    # Siamese-like network branches
+    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
+    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
+ 
+    # Full Model
+    model = Model(
+         inputs=[grdNet.model.input, grdSegNet.model.input, satNet.model.input, satSegNet.model.input], 
+         outputs=[grdNet.model.output, grdSegNet.model.output, satNet.model.output, satSegNet.model.output]
+    )
+    
     print("Model created")
 
     # The two halves of the model should have the same number of channels in total
