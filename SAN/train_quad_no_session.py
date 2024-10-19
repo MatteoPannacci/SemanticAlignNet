@@ -41,7 +41,7 @@ model_save_name = args.name
 loss_type = 'l1' # (not used)
 batch_size = 8
 loss_weight = 10.0
-learning_rate_val = 1e-4
+learning_rate_val = 1e-6
 keep_prob_val = 0.8 # (not used)
 keep_prob = 0.8 # (not used)
 
@@ -103,9 +103,9 @@ def train(start_epoch=0):
 
     # Siamese-like network branches
     grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=False)
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
     satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=False)
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
     
     processor = ProcessFeatures()
  
