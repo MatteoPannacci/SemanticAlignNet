@@ -225,20 +225,20 @@ def train(start_epoch=0):
 
         # compute metrics
         val_top1 = validate(dist_array, 1)
-        print('top1 = %.2f%%' % (val_top1 * 100.0))
+        print('top1 = %.4f%%' % (val_top1 * 100.0))
         val_top5 = validate(dist_array, 5)
-        print('top5 = %.2f%%' % (val_top5 * 100.0))
+        print('top5 = %.4f%%' % (val_top5 * 100.0))
         val_top10 = validate(dist_array, 10)
-        print('top10 = %.2f%%' % (val_top10 * 100.0))
+        print('top10 = %.4f%%' % (val_top10 * 100.0))
         val_top1perc = validate(dist_array, top1_percent)
-        print('top1perc = %.2f%%' % (val_top1perc * 100.0))
+        print('top1perc = %.4f%%' % (val_top1perc * 100.0))
 
         # save model
         with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
-                file.write(str(epoch) + ': top1 ' + format(val_top1, '.2f') +
-                           ', top5 ' + format(val_top5, '.2f') +
-                           ', top10 ' + format(val_top10, '.2f') +
-                           ', top1perc ' + format(val_top1perc, '.2f') +
+                file.write(str(epoch) + ': top1 ' + format(val_top1, '.4f') +
+                           ', top5 ' + format(val_top5, '.4f') +
+                           ', top10 ' + format(val_top10, '.4f') +
+                           ', top1perc ' + format(val_top1perc, '.4f') +
                            ', Loss ' + str(loss_value.numpy()) + '\n')
 
 
