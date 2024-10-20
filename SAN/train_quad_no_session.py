@@ -106,10 +106,10 @@ def train(start_epoch=0):
     )
     
     # Siamese-like network branches
-    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
-    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
+    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=12, freeze=True)
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=4, freeze=True)
+    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=12, freeze=True)
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=4, freeze=True)
  
     # Full Model
     model = Model(
