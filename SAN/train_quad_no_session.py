@@ -280,7 +280,7 @@ def train(start_epoch=0):
         val_top1perc = validate(dist_array, top1_percent)
         print('top1perc = %.4f%%' % (val_top1perc * 100.0))
         val_loss = compute_loss(dist_array)
-        print('top1perc = %.4f%%' % (val_loss * 100.0))
+        print('loss (validation) = %.8f%%' % (val_loss.numpy()))
 
         # save model
         with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
