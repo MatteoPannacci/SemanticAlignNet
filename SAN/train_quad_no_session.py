@@ -188,8 +188,8 @@ def train(start_epoch=0):
                         grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                         sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
                     elif combination_type == 'sum':
-                        grdseg_channels = grdseg_features.shape[3]
-                        satseg_channels = grdseg_features.shape[3]
+                        grdseg_channels = grdseg_features.shape[-1]
+                        satseg_channels = grdseg_features.shape[-1]
                         grd_features[:, :, :, :grdseg_channels] = tf.add(grd_features[:, :, :, :grdseg_channels], grdseg_features)
                         sat_features[:, :, :, :satseg_channels] = tf.add(sat_features[:, :, :, :satseg_channels], satseg_features)
                     else:
@@ -252,8 +252,8 @@ def train(start_epoch=0):
                 grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                 sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
             elif combination_type == 'sum':
-                grdseg_channels = grdseg_features.shape[2]
-                satseg_channels = grdseg_features.shape[2]
+                grdseg_channels = grdseg_features.shape[-1]
+                satseg_channels = grdseg_features.shape[-1]
                 grd_features[:, :, :, :grdseg_channels] = tf.add(grd_features[:, :, :, :grdseg_channels], grdseg_features)
                 sat_features[:, :, :, :satseg_channels] = tf.add(sat_features[:, :, :, :satseg_channels], satseg_features)
             else:
