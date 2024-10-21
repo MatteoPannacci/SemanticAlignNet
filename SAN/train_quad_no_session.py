@@ -88,6 +88,28 @@ def compute_loss(dist_array):
     loss = (loss_g2s + loss_s2g) / 2.0
     return loss
 
+def compute_loss_InfoNCE(sat_descriptor,
+                        grd_descriptor,
+                        logit_scale = 10.0,
+                        support_loss = tf.keras.losses.CategoricalCrossentropy(
+                        from_logits=True,
+                        label_smoothing=0.1,
+                        axis=-1,
+                        reduction='sum_over_batch_size',
+                        name='categorical_crossentropy')):
+
+    logits_sat_descriptor = logit_scale*sat_descriptor@grd_descriptor.T
+    labels = tf.range(tf.shape(logits_sat_descriptor)[0], dtype=tf.int64) #check the [0], could be wrong
+    loss_g2s = support_loss(logits_sat_descriptor, labels)
+
+    logits_grd_descriptor = logits_sat_descriptor.T
+    loss_s2g = support_loss(logits_grd_descriptor, labels)
+
+    loss = (loss_g2s + loss_s2g) / 2.0
+    return loss
+
+
+
 
 def train(start_epoch=0):
     '''
