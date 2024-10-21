@@ -188,8 +188,10 @@ def train(start_epoch=0):
                         grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                         sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
                     elif combination_type == 'sum':
-                        grd_features += np.resize(grdseg_features, grd_features.shape)
-                        sat_features += np.resize(satseg_features, sat_features.shape)
+                        grdseg_features.resize(grd_features.shape)
+                        satseg_features.resize(sat_features.shape)
+                        grd_features = np.add(grd_features, grdseg_features)
+                        sat_features = np.add(sat_features, satseg_features)
                     else:
                         raise Exception("Combination method not implemented!")
                     
@@ -250,8 +252,10 @@ def train(start_epoch=0):
                 grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                 sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
             elif combination_type == 'sum':
-                grd_features += np.resize(grdseg_features, grd_features.shape)
-                sat_features += np.resize(satseg_features, sat_features.shape)
+                grdseg_features.resize(grd_features.shape)
+                satseg_features.resize(sat_features.shape)
+                grd_features = np.add(grd_features, grdseg_features)
+                sat_features = np.add(sat_features, satseg_features)
             else:
                 raise Exception("Combination method not implemented!")
 
