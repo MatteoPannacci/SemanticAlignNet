@@ -187,10 +187,12 @@ def train(start_epoch=0):
                     if combination_type == 'concat':
                         grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                         sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
-                    else combination_type == 'sum':
+                    elif combination_type == 'sum':
                         grd_features += np.resize(grdseg_features, grd_features.shape)
                         sat_features += np.resize(satseg_features, sat_features.shape)
-
+                    else:
+                        raise Exception("Combination method not implemented!")
+                    
                     grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
                     # sat_features is normalized after cropping
                     
@@ -247,9 +249,11 @@ def train(start_epoch=0):
             if combination_type == 'concat':
                 grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                 sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
-            else combination_type == 'sum':
+            elif combination_type == 'sum':
                 grd_features += np.resize(grdseg_features, grd_features.shape)
                 sat_features += np.resize(satseg_features, sat_features.shape)
+            else:
+                raise Exception("Combination method not implemented!")
 
             grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
             # sat_features is normalized after cropping
