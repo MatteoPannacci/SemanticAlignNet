@@ -45,7 +45,7 @@ loss_weight = 10.0
 learning_rate_val = 1e-4
 keep_prob_val = 0.8 # (not used)
 keep_prob = 0.8 # (not used)
-combination_type = 'concat' # concat, sum
+combination_type = 'sum' # concat, sum
 
 print("SETTED PARAMETERS: ")
 print("Train ground FOV: {}".format(train_grd_FOV))
@@ -107,10 +107,10 @@ def train(start_epoch=0):
     )
     
     # Siamese-like network branches
-    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=12, freeze=True)
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=4, freeze=True)
-    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=12, freeze=True)
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=4, freeze=True)
+    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
+    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
  
     # Full Model
     model = Model(
@@ -244,10 +244,14 @@ def train(start_epoch=0):
             grd_features, grdseg_features, sat_features, satseg_features = model([batch_grd, batch_grdseg, batch_sat_polar, batch_satseg])
             
             # feature extraction and concatenation
-            ### ADD SMART COMBINATION THROUGH FULLY CONNECTED LAYER?        
-            grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
+            if combination_type == 'concat':
+                grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
+                sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
+            else combination_type == 'sum':
+                grd_features += np.resize(grdseg_features, grd_features.shape)
+                sat_features += np.resize(satseg_features, sat_features.shape)
+
             grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
-            sat_features = tf.concat([sat_features, satseg_features], axis=-1)
             # sat_features is normalized after cropping
             
             # Compute correlation and distance matrix
