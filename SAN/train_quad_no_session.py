@@ -133,8 +133,17 @@ def train(start_epoch=0):
 
     # feature extraction and concatenation
     grd_features, grdseg_features, sat_features, satseg_features = model([grd_x, grdseg_x, polar_sat_x, satseg_x])
-    sat_features = tf.concat([sat_features, satseg_features], axis=-1)
-    grd_features = tf.concat([grd_features, grdseg_features], axis=-1)
+    # feature extraction and concatenation
+    if combination_type == 'concat':
+        grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
+        sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
+    elif combination_type == 'sum':
+        grdseg_c = grdseg_features.shape[-1]
+        satseg_c = grdseg_features.shape[-1]
+        grd_features = tf.concat([tf.add(grd_features[:, :, :, :grdseg_c], grdseg_features), grd_features[:, :, :, grdseg_c:]], -1)
+        sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)                        
+    else:
+        raise Exception("Combination method not implemented!")
 
     # computing the distance and the matching
     sat_matrix, grd_matrix, distance, pred_orien = processor.VGG_13_conv_v2_cir(sat_features,grd_features)
