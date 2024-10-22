@@ -46,6 +46,8 @@ learning_rate_val = 1e-4
 keep_prob_val = 0.8 # (not used)
 keep_prob = 0.8 # (not used)
 combination_type = 'sum' # concat, sum
+optimizer_type = 'adamw' # adam, adamw
+weight_decay = 0.004
 
 print("SETTED PARAMETERS: ")
 print("Train ground FOV: {}".format(train_grd_FOV))
@@ -116,10 +118,16 @@ def train(start_epoch=0):
     input_data = InputDataQuad()
     processor = ProcessFeatures()    
 
-    # Define the optimizer   
-    optimizer = tf.keras.optimizers.Adam(
-        learning_rate=learning_rate_val
-    )
+    # Define the optimizer
+    if optimizer_type == 'adam':
+        optimizer = tf.keras.optimizers.Adam(
+            learning_rate=learning_rate_val
+        )
+    elif optimizer_type == 'adamw':
+        optimizer = tf.keras.optimizers.AdamW(
+            learning_rate=learning_rate_val,
+            weight_decay=weight_decay
+        )        
     
     # Siamese-like network branches
     grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
