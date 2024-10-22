@@ -124,7 +124,7 @@ def train(start_epoch=0):
             learning_rate=learning_rate_val
         )
     elif optimizer_type == 'adamw':
-        optimizer = tf.keras.optimizers.AdamW(
+        optimizer = tf.keras.optimizers.experimental.AdamW(
             learning_rate=learning_rate_val,
             weight_decay=weight_decay
         )        
