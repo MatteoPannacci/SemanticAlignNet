@@ -7,17 +7,15 @@ import numpy as np
 from PIL import Image
 
 
-class InputDataQuad:
+class InputData:
 
     img_root = '../Data/CVUSA_subset/' # USE AUGMENTED DATASET
 
     # Mean and standard deviation of the used subset
     ground_mean = np.array([[0.46,0.48,0.47]])
     ground_std = np.array([[0.24,0.20,0.21]])
-    ### added grdseg
     grdseg_mean = np.array([0.30, 0.70, 0.36])
     grdseg_std = np.array([0.28, 0.33, 0.43])
-    ###
     sat_polar_mean = np.array([[0.36,0.41,0.40]])
     sat_polar_std = np.array([[0.15,0.14,0.15]])
     satseg_mean = np.array([[0.85,0.8,0.33]])
@@ -146,7 +144,7 @@ class InputDataQuad:
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
-            img = (img - self.ground_mean) / self.ground_std
+            img = (img - self.grdseg_mean) / self.grdseg_std
             j = np.arange(0, 512)
             img_dup = img[:, ((j - random_shift) % 512)[:grd_width], :] # USE SAME SHIFT
             batch_grdseg[i, :, :, :] = img_dup
