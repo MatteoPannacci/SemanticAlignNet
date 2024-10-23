@@ -4,7 +4,7 @@ os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 from cir_net_FOV_mb import *
 # Import its own InputData
-from polar_input_data_quad import InputDataQuad
+from polar_input_data_quad import InputData
 from VGG_no_session import *
 import tensorflow as tf
 from tensorflow import keras
@@ -46,7 +46,7 @@ learning_rate_val = 1e-4
 keep_prob_val = 0.8 # (not used)
 keep_prob = 0.8 # (not used)
 combination_type = 'sum' # concat, sum
-optimizer_type = 'adamw' # adam, adamw
+optimizer_type = 'adam' # adam, adamw
 weight_decay = 0.004
 
 print("SETTED PARAMETERS: ")
@@ -115,7 +115,7 @@ def train(start_epoch=0):
     width = int(train_grd_FOV / 360 * 512)
     
     # import data
-    input_data = InputDataQuad()
+    input_data = InputData()
     processor = ProcessFeatures()    
 
     # Define the optimizer
