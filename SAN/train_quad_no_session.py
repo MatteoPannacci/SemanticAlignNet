@@ -30,33 +30,31 @@ parser.add_argument('--acc_size', type=int, default=4)
 args = parser.parse_args()
 
 
-# Save parameters --------------------------------------- #
-start_epoch = args.start_epoch
+# Data Parameters
 train_grd_noise = args.train_grd_noise
 test_grd_noise = args.test_grd_noise
 train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
-number_of_epoch = args.number_of_epoch
+
+# Model Parameters
 model_save_name = args.name
+combination_type = 'sum' # concat, sum
+grd_c = 16
+grdseg_c = 8
+sat_c = 16
+satseg_c = 8
+
+# Training Parameters
+start_epoch = args.start_epoch
+number_of_epoch = args.number_of_epoch
 batch_size = args.batch_size
 accumulation_size = args.acc_size
-loss_type = 'l1' # (not used)
+loss_type  = 'triplet' # (unused)
 loss_weight = 10.0
-learning_rate_val = 1e-4
-keep_prob_val = 0.8 # (not used)
-keep_prob = 0.8 # (not used)
-combination_type = 'sum' # concat, sum
 optimizer_type = 'adam' # adam, adamw
+learning_rate_val = 1e-4
 weight_decay = 0.004
 
-print("SETTED PARAMETERS: ")
-print("Train ground FOV: {}".format(train_grd_FOV))
-print("Train ground noise: {}".format(train_grd_noise))
-print("Test ground FOV: {}".format(test_grd_FOV))
-print("Test ground noise: {}".format(test_grd_noise))
-print("Number of epochs: {}".format(number_of_epoch))
-print("Learning rate: {}".format(learning_rate_val))
-# -------------------------------------------------------- #
 
 
 def validate(dist_array, topK):
@@ -74,7 +72,8 @@ def validate(dist_array, topK):
     return accuracy
 
 
-def compute_loss(dist_array):
+
+def compute_loss_triplet(dist_array):
 
     pos_dist = tf.linalg.tensor_diag_part(dist_array)
     pair_n = batch_size * (batch_size - 1.0)
@@ -90,9 +89,10 @@ def compute_loss(dist_array):
     loss = (loss_g2s + loss_s2g) / 2.0
     return loss
 
-def compute_loss_InfoNCE(sat_descriptor,
-                        grd_descriptor,
-                        logit_scale = 10.0):
+
+
+def compute_loss_InfoNCE(sat_descriptor, grd_descriptor, logit_scale = 10.0):
+    
     logits_sat_descriptor = logit_scale*sat_descriptor@grd_descriptor.T
     labels = tf.range(tf.shape(logits_sat_descriptor)[0], dtype=tf.int64) #check the [0], could be wrong
     loss_g2s = keras.ops.categorical_crossentropy(labels, logits_sat_descriptor, from_logits = True)
@@ -102,7 +102,6 @@ def compute_loss_InfoNCE(sat_descriptor,
 
     loss = (loss_g2s + loss_s2g) / 2.0
     return loss
-
 
 
 
@@ -118,6 +117,12 @@ def train(start_epoch=0):
     input_data = InputData()
     processor = ProcessFeatures()    
 
+    # choose loss function
+    if loss_type == 'triple':
+        compute_loss = compute_loss_triplet
+    else:
+        raise Exception("Loss not implemented!")        
+
     # Define the optimizer
     if optimizer_type == 'adam':
         optimizer = tf.keras.optimizers.Adam(
@@ -130,10 +135,10 @@ def train(start_epoch=0):
         )        
     
     # Siamese-like network branches
-    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=16, freeze=True)
-    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=8, freeze=True)
-    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=16, freeze=True)
-    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=8, freeze=True)
+    grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=grd_c, freeze=True)
+    grdSegNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grdseg', out_channels=grdseg_c, freeze=True)
+    satNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'_sat', out_channels=sat_c, freeze=True)
+    satSegNet = VGGModelCir(tf.keras.Input(shape=(None, None, 3)),'satseg', out_channels=satseg_c, freeze=True)
  
     # Full Model
     model = Model(
@@ -144,8 +149,14 @@ def train(start_epoch=0):
     print("Model created")
 
     # The two halves of the model should have the same number of channels in total
-    assert grdNet.out_channels + grdSegNet.out_channels == satNet.out_channels + satSegNet.out_channels
     # otherwise the output feature maps will be of different sizes
+    if combination_type == 'concat':
+        assert grdNet.out_channels + grdSegNet.out_channels == satNet.out_channels + satSegNet.out_channels
+    elif combination_type == 'sum':
+        assert grdNet.out_channels == satNet.out_channels
+    else:
+        raise Exception("Combination method not implemented!")  
+    
 
     # (empty) input tensors
     grd_x = np.float32(np.zeros([2, 128, width, 3]))
@@ -161,8 +172,6 @@ def train(start_epoch=0):
         grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
         sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
     elif combination_type == 'sum':
-        grdseg_c = grdseg_features.shape[-1]
-        satseg_c = grdseg_features.shape[-1]
         grd_features = tf.concat([tf.add(grd_features[:, :, :, :grdseg_c], grdseg_features), grd_features[:, :, :, grdseg_c:]], -1)
         sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)                        
     else:
@@ -196,7 +205,6 @@ def train(start_epoch=0):
             total_loss = 0
             
             # gradient accumulation (batch=8, 4 iterations => total batch=32)
-            
             for i in range(accumulation_size):
 
                 # take next batch
