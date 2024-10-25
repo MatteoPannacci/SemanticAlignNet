@@ -118,7 +118,7 @@ def train(start_epoch=0):
     processor = ProcessFeatures()    
 
     # choose loss function
-    if loss_type == 'triple':
+    if loss_type == 'triplet':
         compute_loss = compute_loss_triplet
     else:
         raise Exception("Loss not implemented!")        
@@ -228,8 +228,6 @@ def train(start_epoch=0):
                         grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                         sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
                     elif combination_type == 'sum':
-                        grdseg_c = grdseg_features.shape[-1]
-                        satseg_c = grdseg_features.shape[-1]
                         grd_features = tf.concat([tf.add(grd_features[:, :, :, :grdseg_c], grdseg_features), grd_features[:, :, :, grdseg_c:]], -1)
                         sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)                        
                     else:
@@ -292,8 +290,6 @@ def train(start_epoch=0):
                 grd_features = tf.concat([grd_features, grdseg_features], axis=-1)                        
                 sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
             elif combination_type == 'sum':
-                grdseg_c = grdseg_features.shape[-1]
-                satseg_c = grdseg_features.shape[-1]
                 grd_features = tf.concat([tf.add(grd_features[:, :, :, :grdseg_c], grdseg_features), grd_features[:, :, :, grdseg_c:]], -1)
                 sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)                        
             else:
