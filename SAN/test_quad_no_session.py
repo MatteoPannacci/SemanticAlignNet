@@ -208,6 +208,16 @@ def test():
         val_loss = compute_loss(dist_array) / data_amount
         print('loss (validation) = ' + format(val_loss.numpy(), '.8f'))
 
+        # save model
+        with open('./saved_models/' + output_path + '/test.txt', 'a') as file:
+                file.write('Train FOV ' + str(train_grd_FOV) + 
+                           ',Test FOV ' + str(test_grd_FOV) + 
+                           ', top1 ' + format(val_top1, '.4f') +
+                           ', top5 ' + format(val_top5, '.4f') +
+                           ', top10 ' + format(val_top10, '.4f') +
+                           ', top1perc ' + format(val_top1perc, '.4f') + 
+                           '\n')
+        
         gt_dist = dist_array.diagonal()
         prediction = np.sum(dist_array < gt_dist.reshape(-1, 1), axis=-1)
         loc_acc = np.sum(prediction.reshape(-1, 1) < np.arange(top1_percent), axis=0) / data_amount
