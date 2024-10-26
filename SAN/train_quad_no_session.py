@@ -337,12 +337,14 @@ def train(start_epoch=0):
 
         # save model
         with open('./saved_models/' + model_save_name + '/filename.txt', 'a') as file:
-                file.write(str(epoch) + ': top1 ' + format(val_top1, '.4f') +
+                file.write('Epoch ' str(epoch) + 
+                           ', top1 ' + format(val_top1, '.4f') +
                            ', top5 ' + format(val_top5, '.4f') +
                            ', top10 ' + format(val_top10, '.4f') +
                            ', top1perc ' + format(val_top1perc, '.4f') +
                            ', Loss (last train batch) ' + format(loss_value.numpy(), '.8f') + 
-                           ', Loss (validation) ' + format(val_loss.numpy(), '.8f') + '\n')
+                           ', Loss (validation) ' + format(val_loss.numpy(), '.8f') + 
+                           '\n')
                             
 
 
