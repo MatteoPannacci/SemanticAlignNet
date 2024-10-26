@@ -19,15 +19,11 @@ parser = argparse.ArgumentParser(description='TensorFlow implementation.')
 
 
 # Parser
-parser.add_argument('--start_epoch', type=int, help='from epoch', default=0)
-parser.add_argument('--number_of_epoch', type=int, help='number_of_epoch', default=30)
 parser.add_argument('--train_grd_noise', type=int, help='0~360', default=360)
 parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
 parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
-parser.add_argument('--name', type=str, default='unnamed')
 parser.add_argument('--batch_size', type=int, default=8)
-parser.add_argument('--acc_size', type=int, default=4)
 args = parser.parse_args()
 
 
@@ -38,23 +34,14 @@ train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
 
 # Model Parameters
-model_save_name = args.name
 combination_type = 'sum' # concat, sum
 grd_c = 16
 grdseg_c = 8
 sat_c = 16
 satseg_c = 8
 
-# Training Parameters
-start_epoch = args.start_epoch
-number_of_epoch = args.number_of_epoch
+# Test Parameters
 batch_size = args.batch_size
-accumulation_size = args.acc_size
-loss_type  = 'triplet' # (unused)
-loss_weight = 10.0
-optimizer_type = 'adam' # adam, adamw
-learning_rate_val = 1e-4
-weight_decay = 0.004
 
 
 
@@ -74,66 +61,13 @@ def validate(dist_array, topK):
 
 
 
-def compute_loss_triplet(dist_array):
-
-    pos_dist = tf.linalg.tensor_diag_part(dist_array)
-    pair_n = batch_size * (batch_size - 1.0)
-
-    # satellite to ground
-    triplet_dist_g2s = pos_dist - dist_array
-    loss_g2s = tf.reduce_sum(input_tensor=tf.math.log(1 + tf.exp(triplet_dist_g2s * loss_weight))) / pair_n
-
-    # ground to satellite
-    triplet_dist_s2g = tf.expand_dims(pos_dist, 1) - dist_array
-    loss_s2g = tf.reduce_sum(input_tensor=tf.math.log(1 + tf.exp(triplet_dist_s2g * loss_weight))) / pair_n
-
-    loss = (loss_g2s + loss_s2g) / 2.0
-    return loss
-
-
-
-def compute_loss_InfoNCE(sat_descriptor, grd_descriptor, logit_scale = 10.0):
-    
-    logits_sat_descriptor = logit_scale*sat_descriptor@grd_descriptor.T
-    labels = tf.range(tf.shape(logits_sat_descriptor)[0], dtype=tf.int64) #check the [0], could be wrong
-    loss_g2s = keras.ops.categorical_crossentropy(labels, logits_sat_descriptor, from_logits = True)
-
-    logits_grd_descriptor = logits_sat_descriptor.T
-    loss_s2g = keras.ops.categorical_crossentropy(labels, logits_grd_descriptor, from_logits = True)
-
-    loss = (loss_g2s + loss_s2g) / 2.0
-    return loss
-
-
-
-def train(start_epoch=0):
-    '''
-    Train the network and do the test
-    :param start_epoch: the epoch id start to train. The first epoch is 0.
-    '''
+def test():
 
     width = int(train_grd_FOV / 360 * 512)
     
     # import data
     input_data = InputData()
-    processor = ProcessFeatures()    
-
-    # choose loss function
-    if loss_type == 'triple':
-        compute_loss = compute_loss_triplet
-    else:
-        raise Exception("Loss not implemented!")        
-
-    # Define the optimizer
-    if optimizer_type == 'adam':
-        optimizer = tf.keras.optimizers.Adam(
-            learning_rate=learning_rate_val
-        )
-    elif optimizer_type == 'adamw':
-        optimizer = tf.keras.optimizers.experimental.AdamW(
-            learning_rate=learning_rate_val,
-            weight_decay=weight_decay
-        )        
+    processor = ProcessFeatures()                
     
     # Siamese-like network branches
     grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=grd_c, freeze=True)
@@ -281,4 +215,4 @@ def train(start_epoch=0):
 
 
 if __name__ == '__main__':
-    train(start_epoch)
+    test()
