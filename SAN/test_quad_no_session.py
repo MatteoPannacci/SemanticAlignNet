@@ -208,8 +208,9 @@ def test():
 
         # save model
         with open(output_path + '/test.txt', 'a') as file:
-                file.write('Train FOV ' + str(train_grd_FOV) + 
-                           ',Test FOV ' + str(test_grd_FOV) + 
+                file.write('Model Path ' + input_path +
+                           ', Train FOV ' + str(train_grd_FOV) + 
+                           ', Test FOV ' + str(test_grd_FOV) + 
                            ', top1 ' + format(val_top1, '.4f') +
                            ', top5 ' + format(val_top5, '.4f') +
                            ', top10 ' + format(val_top10, '.4f') +
