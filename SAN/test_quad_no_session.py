@@ -175,8 +175,9 @@ def test():
         count += 1
 
     
-    file = output_path + '/descriptors.mat'
-    scio.savemat(file, {'orientation_gth': orientation_gth, 'grd_descriptor': grd_global_matrix, 'sat_descriptor': sat_global_matrix})
+    # file = output_path + '/descriptors.mat'
+    # scio.savemat(file, {'orientation_gth': orientation_gth, 'grd_descriptor': grd_global_matrix, 'sat_descriptor': sat_global_matrix})
+    
     grd_descriptor = grd_global_matrix
     sat_descriptor = sat_global_matrix
 
@@ -217,10 +218,10 @@ def test():
                            ', top1perc ' + format(val_top1perc, '.4f') + 
                            '\n')
         
-        gt_dist = dist_array.diagonal()
-        prediction = np.sum(dist_array < gt_dist.reshape(-1, 1), axis=-1)
-        loc_acc = np.sum(prediction.reshape(-1, 1) < np.arange(top1_percent), axis=0) / data_amount
-        scio.savemat(file, {'loc_acc': loc_acc, 'grd_descriptor': grd_descriptor, 'sat_descriptor': sat_descriptor})            
+        # gt_dist = dist_array.diagonal()
+        # prediction = np.sum(dist_array < gt_dist.reshape(-1, 1), axis=-1)
+        # loc_acc = np.sum(prediction.reshape(-1, 1) < np.arange(top1_percent), axis=0) / data_amount
+        # scio.savemat(file, {'loc_acc': loc_acc, 'grd_descriptor': grd_descriptor, 'sat_descriptor': sat_descriptor})            
 
 
 
