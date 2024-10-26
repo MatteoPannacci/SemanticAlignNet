@@ -24,8 +24,8 @@ parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
 parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--batch_size', type=int, default=8)
-parser.add_argument('--input_path', type=string, default='./saved_models/unnamed')
-parser.add_argument('--output_path', type=string, default='./saved_models/unnamed')
+parser.add_argument('--input_path', type=str, default='./saved_models/unnamed/')
+parser.add_argument('--output_path', type=str, default='./saved_models/unnamed/')
 args = parser.parse_args()
 
 
