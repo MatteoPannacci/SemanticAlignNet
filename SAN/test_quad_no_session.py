@@ -207,7 +207,7 @@ def test():
         print('top1perc = %.4f%%' % (val_top1perc * 100.0))
 
         # save model
-        with open('./saved_models/' + output_path + '/test.txt', 'a') as file:
+        with open('output_path + '/test.txt', 'a') as file:
                 file.write('Train FOV ' + str(train_grd_FOV) + 
                            ',Test FOV ' + str(test_grd_FOV) + 
                            ', top1 ' + format(val_top1, '.4f') +
