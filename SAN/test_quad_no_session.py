@@ -122,10 +122,9 @@ def test():
     orientation_gth = np.zeros([input_data.get_test_dataset_size()])
 
     # load a Model
-    if start_epoch != 0:
-        model_path = "./saved_models/SANv2/18/"
-        model = keras.models.load_model(model_path)
-        print("Model checkpoint uploaded")
+    model_path = "./saved_models/SANv2/18/"
+    model = keras.models.load_model(model_path)
+    print("Model checkpoint uploaded")
 
 
     print("Validation...")
