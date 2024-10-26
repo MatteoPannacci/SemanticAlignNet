@@ -12,6 +12,7 @@ import argparse
 from PIL import Image
 import scipy.io as scio
 from numpy import fft
+import os
 
 
 tf.compat.v1.enable_eager_execution()
@@ -174,6 +175,7 @@ def test():
         val_i += sat_matrix.shape[0]
         count += 1
 
+    os.makedirs(output_path, exist_ok=True)
     
     # file = output_path + '/descriptors.mat'
     # scio.savemat(file, {'orientation_gth': orientation_gth, 'grd_descriptor': grd_global_matrix, 'sat_descriptor': sat_global_matrix})
