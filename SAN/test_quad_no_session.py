@@ -175,7 +175,7 @@ def test():
         count += 1
 
     
-    file = output_path +'/descriptors.mat'
+    file = output_path + '/descriptors.mat'
     scio.savemat(file, {'orientation_gth': orientation_gth, 'grd_descriptor': grd_global_matrix, 'sat_descriptor': sat_global_matrix})
     grd_descriptor = grd_global_matrix
     sat_descriptor = sat_global_matrix
