@@ -205,8 +205,6 @@ def test():
         print('top10 = %.4f%%' % (val_top10 * 100.0))
         val_top1perc = validate(dist_array, top1_percent)
         print('top1perc = %.4f%%' % (val_top1perc * 100.0))
-        val_loss = compute_loss(dist_array) / data_amount
-        print('loss (validation) = ' + format(val_loss.numpy(), '.8f'))
 
         # save model
         with open('./saved_models/' + output_path + '/test.txt', 'a') as file:
