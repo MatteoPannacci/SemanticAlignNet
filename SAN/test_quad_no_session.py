@@ -20,9 +20,7 @@ parser = argparse.ArgumentParser(description='TensorFlow implementation.')
 
 
 # Parser
-parser.add_argument('--train_grd_noise', type=int, help='0~360', default=360)
 parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
-parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--batch_size', type=int, default=8)
 parser.add_argument('--input_path', type=str, default='./saved_models/unnamed/')
@@ -31,9 +29,7 @@ args = parser.parse_args()
 
 
 # Data Parameters
-train_grd_noise = args.train_grd_noise
 test_grd_noise = args.test_grd_noise
-train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
 
 # Model Parameters
@@ -68,7 +64,7 @@ def validate(dist_array, topK):
 
 def test():
 
-    width = int(train_grd_FOV / 360 * 512)
+    width = int(test_grd_FOV / 360 * 512)
     
     # import data
     input_data = InputData()
@@ -212,7 +208,6 @@ def test():
         # save model
         with open(output_path + '/test.txt', 'a') as file:
                 file.write('Model Path ' + input_path +
-                           ', Train FOV ' + str(train_grd_FOV) + 
                            ', Test FOV ' + str(test_grd_FOV) + 
                            ', top1 ' + format(val_top1, '.4f') +
                            ', top5 ' + format(val_top5, '.4f') +
