@@ -24,6 +24,8 @@ parser.add_argument('--test_grd_noise', type=int, help='0~360', default=0)
 parser.add_argument('--train_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default=360)
 parser.add_argument('--batch_size', type=int, default=8)
+parser.add_argument('--input_path', type=string, default='./saved_models/unnamed')
+parser.add_argument('--output_path', type=string, default='./saved_models/unnamed')
 args = parser.parse_args()
 
 
@@ -34,6 +36,8 @@ train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
 
 # Model Parameters
+input_path = args.input_path
+output_path = args.output_path
 combination_type = 'sum' # concat, sum
 grd_c = 16
 grdseg_c = 8
@@ -122,12 +126,12 @@ def test():
     orientation_gth = np.zeros([input_data.get_test_dataset_size()])
 
     # load a Model
-    model_path = "./saved_models/SANv2/18/"
+    model_path = input_path
     model = keras.models.load_model(model_path)
     print("Model checkpoint uploaded")
 
 
-    print("Validation...")
+    print("Test...")
     val_i = 0
     count = 0
     while True:
@@ -171,7 +175,7 @@ def test():
         count += 1
 
     
-    file = './saved_models/path/filename.mat'
+    file = output_path +'/descriptors.mat'
     scio.savemat(file, {'orientation_gth': orientation_gth, 'grd_descriptor': grd_global_matrix, 'sat_descriptor': sat_global_matrix})
     grd_descriptor = grd_global_matrix
     sat_descriptor = sat_global_matrix
