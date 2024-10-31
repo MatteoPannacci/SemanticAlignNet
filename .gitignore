@@ -1,3 +1,5 @@
 /Data
 /MMLFN/save_models
 /SAN/saved_models
+/MMLFN/__pycache__
+/SAN/__pycache__
