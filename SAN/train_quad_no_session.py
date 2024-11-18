@@ -27,6 +27,7 @@ parser.add_argument('--test_grd_FOV', type=int, help='70, 90, 180, 360', default
 parser.add_argument('--name', type=str, default='unnamed')
 parser.add_argument('--batch_size', type=int, default=8)
 parser.add_argument('--acc_size', type=int, default=4)
+parser.add_argument('--all_rgb', type=bool, default=False)
 args = parser.parse_args()
 
 
@@ -35,6 +36,7 @@ train_grd_noise = args.train_grd_noise
 test_grd_noise = args.test_grd_noise
 train_grd_FOV = args.train_grd_FOV
 test_grd_FOV = args.test_grd_FOV
+all_rgb_images = args.all_rgb
 
 # Model Parameters
 model_save_name = args.name
@@ -114,14 +116,14 @@ def train(start_epoch=0):
     width = int(train_grd_FOV / 360 * 512)
     
     # import data
-    input_data = InputData()
-    processor = ProcessFeatures()    
+    input_data = InputData(all_rgb = all_rgb_images)
+    processor = ProcessFeatures()
 
     # choose loss function
     if loss_type == 'triplet':
         compute_loss = compute_loss_triplet
     else:
-        raise Exception("Loss not implemented!")        
+        raise Exception("Loss not implemented: %s" % loss_type)    
 
     # Define the optimizer
     if optimizer_type == 'adam':
@@ -132,7 +134,10 @@ def train(start_epoch=0):
         optimizer = tf.keras.optimizers.experimental.AdamW(
             learning_rate=learning_rate_val,
             weight_decay=weight_decay
-        )        
+        )
+    else:
+        raise Exception("Optimizer not implemented: %s" % optimizer_type)
+
     
     # Siamese-like network branches
     grdNet = VGGModel(tf.keras.Input(shape=(None, None, 3)),'_grd', out_channels=grd_c, freeze=True)
@@ -155,7 +160,7 @@ def train(start_epoch=0):
     elif combination_type == 'sum':
         assert grdNet.out_channels == satNet.out_channels
     else:
-        raise Exception("Combination method not implemented!")  
+        raise Exception("Combination method not implemented: %s" % combination_type)  
     
 
     # (empty) input tensors
@@ -230,8 +235,6 @@ def train(start_epoch=0):
                     elif combination_type == 'sum':
                         grd_features = tf.concat([tf.add(grd_features[:, :, :, :grdseg_c], grdseg_features), grd_features[:, :, :, grdseg_c:]], -1)
                         sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)                        
-                    else:
-                        raise Exception("Combination method not implemented!")
                     
                     grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
                     # sat_features is normalized after cropping
@@ -291,9 +294,7 @@ def train(start_epoch=0):
                 sat_features = tf.concat([sat_features, satseg_features], axis=-1)                        
             elif combination_type == 'sum':
                 grd_features = tf.concat([tf.add(grd_features[:, :, :, :grdseg_c], grdseg_features), grd_features[:, :, :, grdseg_c:]], -1)
-                sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)                        
-            else:
-                raise Exception("Combination method not implemented!")
+                sat_features = tf.concat([tf.add(sat_features[:, :, :, :satseg_c], satseg_features), sat_features[:, :, :, satseg_c:]], -1)
 
             grd_features = tf.nn.l2_normalize(grd_features, axis=[1, 2, 3])
             # sat_features is normalized after cropping

@@ -23,9 +23,10 @@ class InputData:
     flipped = 0
 
 
-    def __init__(self, data_type='CVUSA_subset'):
+    def __init__(self, data_type='CVUSA_subset', all_rgb=False):
 
         self.data_type = data_type
+        self.all_rgb = all_rgb
         self.img_root = '../Data/' + self.data_type + '/'
 
         ### substituted with augmented list
@@ -96,30 +97,29 @@ class InputData:
         grd_shift = np.zeros([batch_size], dtype=np.int_)
 
         for i in range(batch_size):
+
             img_idx = self.__cur_test_id + i
 
-            # satellite polar
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][0]) # .replace("/","/normal/")
-
+            # Satellite RGB Polar
+            img = cv2.imread(self.img_root + self.id_test_list[img_idx][0])
             img = img.astype(np.float32)
             img = img/255
             img = (img - self.sat_polar_mean) / self.sat_polar_std
             batch_sat_polar[i, :, :, :] = img
             ###
 
-            # SATELLITE POLAR TRANSFORMED SEGMENTED
-            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
-            
-            if img_s is None or img.shape[0] != 128 or img_s.shape[1] != 512:
-                print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img_s.shape)
-                continue
-            img_s = img_s.astype(np.float32)
-            img_s = img_s/255
-            img_s = (img_s - self.satseg_mean) / self.satseg_std
-            batch_satseg[i, :, :, :] = img_s
+            # Satellite SEG Polar
+            if self.all_rgb:
+                img = cv2.imread(self.img_root + self.id_test_list[img_idx][0])
+            else:
+                img = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
+            img = img.astype(np.float32)
+            img = img/255
+            img = (img - self.satseg_mean) / self.satseg_std
+            batch_satseg[i, :, :, :] = img
             ###
 
-            # satellite
+            # Satellite RGB (not used)
             img = cv2.imread(self.img_root + self.id_test_list[img_idx][1])
             img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
@@ -127,20 +127,24 @@ class InputData:
             batch_sat[i, :, :, :] = img
             ###
 
-            # ground
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2]) # .replace("input","").replace("png","jpg")
+            # Ground RGB
+            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2])
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
             img = (img - self.ground_mean) / self.ground_std
             j = np.arange(0, 512)
             random_shift = int(np.random.rand() * 512 * grd_noise / 360)
+            grd_shift[i] = random_shift
             img_dup = img[:, ((j - random_shift) % 512)[:grd_width], :]
             batch_grd[i, :, :, :] = img_dup
             ###
 
-            # ground segmentation
-            img = cv2.imread(self.img_root + self.id_test_list[img_idx][2].replace("streetview","streetview_segmentation"))
+            # Ground SEG
+            if self.all_rgb:
+                img = cv2.imread(self.img_root + self.id_test_list[img_idx][2])
+            else:
+                img = cv2.imread(self.img_root + self.id_test_list[img_idx][2].replace("streetview","streetview_segmentation"))
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
@@ -149,8 +153,6 @@ class InputData:
             img_dup = img[:, ((j - random_shift) % 512)[:grd_width], :] # USE SAME SHIFT
             batch_grdseg[i, :, :, :] = img_dup
             ###
-
-            grd_shift[i] = random_shift
 
         self.__cur_test_id += batch_size
 
@@ -181,6 +183,7 @@ class InputData:
         batch_idx = 0
         count = 0
         while True:
+            
             if batch_idx >= batch_size or self.__cur_id + i >= self.data_size:
                 break
 
@@ -188,10 +191,7 @@ class InputData:
             i += 1
 
             # SATELLITE POLAR TRANSFORMED
-            img = cv2.imread(self.img_root + self.id_list[img_idx][0]) # .replace("/","/normal/")
-            if img is None or img.shape[0] != 128 or img.shape[1] != 512:
-                print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img.shape)
-                continue
+            img = cv2.imread(self.img_root + self.id_list[img_idx][0])
             img = img.astype(np.float32)
             img = img/255
             img = (img - self.sat_polar_mean) / self.sat_polar_std
@@ -199,24 +199,18 @@ class InputData:
             #######################################
 
             # SATELLITE POLAR TRANSFORMED SEGMENTED
-            img_s = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
-            
-            if img_s is None or img.shape[0] != 128 or img_s.shape[1] != 512:
-                print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i), img_s.shape)
-                continue
-
-            img_s = img_s.astype(np.float32)
-            img_s = img_s/255
-            img_s = (img_s - self.satseg_mean) / self.satseg_std
-            batch_satseg[batch_idx, :, :, :] = img_s
+            if self.all_rgb:
+                img = cv2.imread(self.img_root + self.id_list[img_idx][0])
+            else:
+                img = cv2.imread(self.img_root + self.id_list[img_idx][0].replace("/normal/input","/segmap/output"))
+            img = img.astype(np.float32)
+            img = img/255
+            img = (img - self.satseg_mean) / self.satseg_std
+            batch_satseg[batch_idx, :, :, :] = img
             #######################################
 
-            # SATELLITE IMAGE 
+            # SATELLITE IMAGE (unused)
             img = cv2.imread(self.img_root + self.id_list[img_idx][1])
-            if img is None or img.shape[0] != 370 or img.shape[1] != 370:
-                print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i),
-                      img.shape)
-                continue
             img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
@@ -224,41 +218,37 @@ class InputData:
             #######################################
 
             # GROUND IMAGE
-            img = cv2.imread(self.img_root + self.id_list[img_idx][2]) # .replace("input","").replace("png","jpg")
-
-            if img is None or img.shape[0] != 224 or img.shape[1] != 1232:
-                print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][1], i), img.shape)
-                continue
+            img = cv2.imread(self.img_root + self.id_list[img_idx][2])
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
             img = (img - self.ground_mean) / self.ground_std
-
             j = np.arange(0, 512)
-            
             random_shift = int(np.random.rand() * 512 * grd_noise / 360)
+            grd_shift[batch_idx] = random_shift
             img_dup = img[:, ((j-random_shift)%512)[:grd_width], :]
             batch_grd[batch_idx, :, :, :] = img_dup
             #######################################
 
             ### GROUND SEGMENTATION
-            img = cv2.imread(self.img_root + self.id_list[img_idx][2].replace("streetview","streetview_segmentation"))
-
-            if img is None or img.shape[0] != 224 or img.shape[1] != 1232:
-                print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][1], i), img.shape)
-                continue
+            if self.all_rgb:
+                img = cv2.imread(self.img_root + self.id_list[img_idx][2])
+            else:
+                img = cv2.imread(self.img_root + self.id_list[img_idx][2].replace("streetview","streetview_segmentation"))
             img = cv2.resize(img, (512, 128), interpolation=cv2.INTER_AREA)
             img = img.astype(np.float32)
             img = img/255
             img = (img - self.grdseg_mean) / self.grdseg_std
-
             j = np.arange(0, 512)
-            
             img_dup = img[:, ((j-random_shift)%512)[:grd_width], :] # use same shift
             batch_grdseg[batch_idx, :, :, :] = img_dup
             #######################################
 
-            grd_shift[batch_idx] = random_shift
+            # check size
+            #if img is None or img.shape[0] != 512 or img.shape[1] != 128:
+            #    print('InputData::next_pair_batch: read fail: %s, %d, ' % (self.img_root + self.id_list[img_idx][0], i),
+            #          img.shape)
+            #    continue
 
             batch_idx += 1
             count+=1
