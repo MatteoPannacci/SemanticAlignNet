@@ -189,7 +189,7 @@ def train(start_epoch=0):
 
     # load a Model
     if start_epoch != 0:
-        model_path = "./saved_models/QUAD-16-8_concat_FOV70/18"
+        model_path = "./saved_models/triple_grd_fov180/13"
         model = keras.models.load_model(model_path)
         print("Model checkpoint uploaded")
 

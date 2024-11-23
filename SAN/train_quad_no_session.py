@@ -41,10 +41,10 @@ all_rgb_images = args.all_rgb
 # Model Parameters
 model_save_name = args.name
 combination_type = 'concat' # concat, sum
-grd_c = 16
-grdseg_c = 8
-sat_c = 16
-satseg_c = 8
+grd_c = 12
+grdseg_c = 4
+sat_c = 12
+satseg_c = 4
 
 # Training Parameters
 start_epoch = args.start_epoch
@@ -54,7 +54,7 @@ accumulation_size = args.acc_size
 loss_type  = 'triplet' # (unused)
 loss_weight = 10.0
 optimizer_type = 'adam' # adam, adamw
-learning_rate_val = 1e-5
+learning_rate_val = 1e-4
 weight_decay = 0.004
 
 
@@ -194,7 +194,7 @@ def train(start_epoch=0):
 
     # load a Model
     if start_epoch != 0:
-        model_path = "./saved_models/QUAD-16-8_concat_FOV70/18"
+        model_path = "./saved_models/QUAD-12-4_post_correction/18"
         model = keras.models.load_model(model_path)
         print("Model checkpoint uploaded")
 
