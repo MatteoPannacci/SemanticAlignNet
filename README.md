@@ -7,7 +7,7 @@
 This study addresses the challenge of linking a ground-view image to its corresponding satellite image without relying on GPS data. To achieve this, a novel four-stream Siamese-like architecture, Quadruple Semantic Align Net (SAN-QUAD), was introduced. SAN-QUAD expands previous SOTA methods with the use of new features, such as semantic segmentation, for both ground and satellite images. The results show notable improvements over previous methods across all tested fields of view (FoV) on the CVUSA dataset.</p>
 
 ## Model 
-![plot](./Model_f.png)
+![plot](./Extended_SAN.drawio_1.png)
 
 ## Requirements
 1. This code uses a ```tensorflow``` docker with libraries ```opencv-python 4.8.0.74``` ```pillow 10.0.0``` ```transformers```, ```torch```, ```gradio_imageslider```, ```gradio 4.14.0```, ```torchvision```, ```huggingface_hub``` and runs on modern GPU of at least 6GB of memory
