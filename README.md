@@ -26,8 +26,10 @@ This study addresses the challenge of linking a ground-view image to its corresp
 - For testing run the following command from the shell:
     - ```python test_quad_no_session.py --test_grd_noise 360 --test_grd_FOV $YOUR_FOV --input_path $INPUT_FOLDER --output_path $OUTPUT_FOLDER```
     - This command will run the python file ```test_quad_no_session.py```, inside it there are other possible parameters to pass as input or to leave as default value
+    - ```$INPUT_FOLDER``` is the path containing the keras checkpoint load
     - ```$YOUR_FOV``` choose a value bewteen 0° and 360°, that is the FoV value used for the ground view images
-    - The results of the testing phase will be saved in a file ```test.txt``` within the  $OUTPUT_FOLDER
+    - The results of the testing phase will be saved in a file ```test.txt``` within the ```$OUTPUT_FOLDER```
+- For training and testing different architectures other versions of the train and test files are provided
 - Dataset
     - Once you downloaded the dataset you will have the following folders:
 	    - ```bingmap``` this folder contains the original satellite view images
