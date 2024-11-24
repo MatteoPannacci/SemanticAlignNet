@@ -19,15 +19,15 @@ This study addresses the challenge of linking a ground-view image to its corresp
 - Clone this repository 
     - ```git clone https://github.com/MatteoPannacci/SemanticAlignNet.git```
 - For training run the following command from the shell:
-    - ```python train_no_session.py --train_grd_noise 360 --train_grd_FOV $YOUR_FOV --test_grd_FOV $YOUR_FOV```
-    - This command will run the python file ```train_no_session.py```, inside it there are other possible parameters to pass as input or to leave as default value
+    - ```python train_quad_no_session.py --train_grd_noise 360 --train_grd_FOV $YOUR_FOV --test_grd_FOV $YOUR_FOV --name $MODEL_NAME```
+    - This command will run the python file ```train_quad_no_session.py```, inside it there are other possible parameters to pass as input or to leave as default value
     - ```$YOUR_FOV``` choose a value bewteen 0° and 360°, that is the FoV value used for the ground view images
-    - The trained model will be saved in the path ```./saved_models/model_name/```, will be created a folder for each trained epoch and a ```.txt``` file with a recap of the training
+    - The trained model will be saved in the path ```./saved_models/$MODEL_NAME/```, a folder for each trained epoch will be created together with a ```train.txt``` file with a log of the training
 - For testing run the following command from the shell:
-    - ```python test_no_session.py --train_grd_noise 360 --train_grd_FOV $YOUR_FOV --test_grd_FOV $YOUR_FOV```
-    - This command will run the python file ```test_no_session.py```, inside it there are other possible parameters to pass as input or to leave as default value
+    - ```python test_quad_no_session.py --test_grd_noise 360 --test_grd_FOV $YOUR_FOV --input_path $INPUT_FOLDER --output_path $OUTPUT_FOLDER```
+    - This command will run the python file ```test_quad_no_session.py```, inside it there are other possible parameters to pass as input or to leave as default value
     - ```$YOUR_FOV``` choose a value bewteen 0° and 360°, that is the FoV value used for the ground view images
-    - The results of the testing phase will be saved in a ```.mat``` file
+    - The results of the testing phase will be saved in a file ```test.txt``` within the  $OUTPUT_FOLDER
 - Dataset
     - Once you downloaded the dataset you will have the following folders:
 	    - ```bingmap``` this folder contains the original satellite view images
